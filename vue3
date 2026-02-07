@@ -51,101 +51,94 @@
         </div>
       </section>
 
-      <section class="controls-luxury relative-zone">
-        <div class="top-bar-controls">
-          
-          <div class="switch-group" @click="toggleNew">
-             <svg class="ctrl-icon-small" viewBox="0 0 24 24"><path fill="currentColor" d="M7,2V13H10V22L17,10H14L17,2H7Z" /></svg>
-             <label class="ctrl-label-inline">НОВИНКИ</label>
-             
-             <div :class="['soft-switch', { 'active': isNewOnly }]">
-               <div class="soft-track"></div>
-               <div class="soft-knob">
-                 <div class="knob-dot"></div>
-               </div>
-             </div>
-          </div>
-
-          <button @click="showFilters = !showFilters" :class="['settings-btn', { 'active': showFilters }]">
-            <template v-if="!showFilters">
-              <svg class="btn-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.35 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.35 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.95C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" /></svg>
-              <span>НАСТРОЙКИ</span>
-            </template>
-            <template v-else>
-              <svg class="btn-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
-              <span>ЗАКРЫТЬ</span>
-            </template>
-          </button>
-        </div>
-
-        <div v-if="showFilters" class="click-overlay" @click="showFilters = false"></div>
-
-        <transition name="pop">
-          <div v-if="showFilters" class="bahur-popup-menu">
-            
-            <div class="popup-row">
-              <div class="popup-head">
-                <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6C8.69,6 6,8.69 6,12C6,15.31 8.69,18 12,18V6Z" /></svg>
-                <span class="popup-label">ПОЛ</span>
-              </div>
-              <div class="seg-control">
-                <button v-for="g in genderOptions" :key="g.val" @click="activeGender = g.val" :class="['seg-btn', { active: activeGender === g.val }]">{{ g.label }}</button>
-              </div>
-            </div>
-
-            <div class="popup-row">
-              <div class="popup-head">
-                <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15M5,15.91L11,19.29V12.58L5,9.21V15.91M19,15.91V9.21L13,12.58V19.29L19,15.91Z" /></svg>
-                <span class="popup-label">ФАБРИКА</span>
-              </div>
-              <div class="seg-control">
-                <button v-for="f in factoryOptions" :key="f.val" @click="activeFactory = f.val" :class="['seg-btn', { active: activeFactory === f.val }]">{{ f.label }}</button>
-              </div>
-            </div>
-
-            <div class="popup-row">
-              <div class="popup-head">
-                 <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2L14.5,9H22L16,13.5L18.5,20.5L12,16L5.5,20.5L8,13.5L2,9H9.5L12,2Z" /></svg>
-                 <span class="popup-label">КАЧЕСТВО</span>
-              </div>
-              <div class="seg-control">
-                <button v-for="q in qualityOptions" :key="q.val" @click="activeQuality = q.val" :class="['seg-btn', { active: activeQuality === q.val }]">{{ q.label }}</button>
-              </div>
-            </div>
-
-            <div class="popup-row">
-              <div class="popup-head">
-                <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M3,18H9V16H3V18M3,6V8H21V6H3M3,13H15V11H3V13Z" /></svg>
-                <span class="popup-label">СОРТИРОВКА</span>
-              </div>
-              <div class="seg-control">
-                <button v-for="s in sortOptions" :key="s.val" 
-                        @click="sortBy = s.val" 
-                        :class="['seg-btn', { active: sortBy === s.val }]">
-                  <span class="sort-content" v-html="s.labelHTML"></span>
-                </button>
-              </div>
-            </div>
-
-            <div class="popup-row">
-              <div class="popup-head">
-                <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M4,2H20A2,2 0 0,1 22,4V20A2,2 0 0,1 20,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2M4,4V20H8V4H4M10,4V20H14V4H10M16,4V20H20V4H16Z" /></svg>
-                <span class="popup-label">СТОЛБЦЫ</span>
-              </div>
-              <div class="seg-control">
-                <button v-for="(val, key) in priceLabels" :key="key" @click="togglePrice(key)" :class="['seg-btn', { active: showPrices[key] }]">{{ val }}</button>
-              </div>
-            </div>
-
-          </div>
-        </transition>
-      </section>
-
       <div class="table-frame">
-        <div v-if="loading" class="loading-container"><div class="loading-line"></div></div>
-        
-        <div v-else class="grid-table">
-          <div class="grid-row head sticky-head no-click">
+        <div class="sticky-nav-group">
+          
+          <section class="controls-luxury relative-zone">
+            <div class="top-bar-controls">
+              
+              <div class="switch-group" @click="toggleNew">
+                 <svg class="ctrl-icon-small" viewBox="0 0 24 24"><path fill="currentColor" d="M7,2V13H10V22L17,10H14L17,2H7Z" /></svg>
+                 <label class="ctrl-label-inline">НОВИНКИ</label>
+                 
+                 <div :class="['soft-switch', { 'active': isNewOnly }]">
+                   <div class="soft-track"></div>
+                   <div class="soft-knob">
+                     <div class="knob-dot"></div>
+                   </div>
+                 </div>
+              </div>
+
+              <button @click="showFilters = !showFilters" :class="['settings-btn', { 'active': showFilters }]">
+                <template v-if="!showFilters">
+                  <svg class="btn-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.35 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.35 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.95C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" /></svg>
+                  <span>НАСТРОЙКИ</span>
+                </template>
+                <template v-else>
+                  <svg class="btn-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+                  <span>ЗАКРЫТЬ</span>
+                </template>
+              </button>
+            </div>
+
+            <div v-if="showFilters" class="click-overlay" @click="showFilters = false"></div>
+
+            <transition name="pop">
+              <div v-if="showFilters" class="bahur-popup-menu">
+                <div class="popup-row">
+                  <div class="popup-head">
+                    <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2C6.48,2 2,6.48 2,12C2,17.52 6.48,22 12,22C17.52,22 22,17.52 22,12C22,6.48 17.52,2 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6C8.69,6 6,8.69 6,12C6,15.31 8.69,18 12,18V6Z" /></svg>
+                    <span class="popup-label">ПОЛ</span>
+                  </div>
+                  <div class="seg-control">
+                    <button v-for="g in genderOptions" :key="g.val" @click="activeGender = g.val" :class="['seg-btn', { active: activeGender === g.val }]">{{ g.label }}</button>
+                  </div>
+                </div>
+                <div class="popup-row">
+                  <div class="popup-head">
+                    <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M21,16.5C21,16.88 20.79,17.21 20.47,17.38L12.57,21.82C12.41,21.94 12.21,22 12,22C11.79,22 11.59,21.94 11.43,21.82L3.53,17.38C3.21,17.21 3,16.88 3,16.5V7.5C3,7.12 3.21,6.79 3.53,6.62L11.43,2.18C11.59,2.06 11.79,2 12,2C12.21,2 12.41,2.06 12.57,2.18L20.47,6.62C20.79,6.79 21,7.12 21,7.5V16.5M12,4.15L6.04,7.5L12,10.85L17.96,7.5L12,4.15M5,15.91L11,19.29V12.58L5,9.21V15.91M19,15.91V9.21L13,12.58V19.29L19,15.91Z" /></svg>
+                    <span class="popup-label">ФАБРИКА</span>
+                  </div>
+                  <div class="seg-control">
+                    <button v-for="f in factoryOptions" :key="f.val" @click="activeFactory = f.val" :class="['seg-btn', { active: activeFactory === f.val }]">{{ f.label }}</button>
+                  </div>
+                </div>
+                <div class="popup-row">
+                  <div class="popup-head">
+                     <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2L14.5,9H22L16,13.5L18.5,20.5L12,16L5.5,20.5L8,13.5L2,9H9.5L12,2Z" /></svg>
+                     <span class="popup-label">КАЧЕСТВО</span>
+                  </div>
+                  <div class="seg-control">
+                    <button v-for="q in qualityOptions" :key="q.val" @click="activeQuality = q.val" :class="['seg-btn', { active: activeQuality === q.val }]">{{ q.label }}</button>
+                  </div>
+                </div>
+                <div class="popup-row">
+                  <div class="popup-head">
+                    <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M3,18H9V16H3V18M3,6V8H21V6H3M3,13H15V11H3V13Z" /></svg>
+                    <span class="popup-label">СОРТИРОВКА</span>
+                  </div>
+                  <div class="seg-control">
+                    <button v-for="s in sortOptions" :key="s.val" 
+                            @click="sortBy = s.val" 
+                            :class="['seg-btn', { active: sortBy === s.val }]">
+                      <span class="sort-content" v-html="s.labelHTML"></span>
+                    </button>
+                  </div>
+                </div>
+                <div class="popup-row">
+                  <div class="popup-head">
+                    <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M4,2H20A2,2 0 0,1 22,4V20A2,2 0 0,1 20,22H4A2,2 0 0,1 2,20V4A2,2 0 0,1 4,2M4,4V20H8V4H4M10,4V20H14V4H10M16,4V20H20V4H16Z" /></svg>
+                    <span class="popup-label">СТОЛБЦЫ</span>
+                  </div>
+                  <div class="seg-control">
+                    <button v-for="(val, key) in priceLabels" :key="key" @click="togglePrice(key)" :class="['seg-btn', { active: showPrices[key] }]">{{ val }}</button>
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </section>
+
+          <div class="grid-row head no-click">
             <div class="cell id head-txt center">№</div>
             <div class="cell name name-header">
               <div class="search-wrapper">
@@ -163,9 +156,13 @@
               <div v-if="showPrices.p1000" class="p-col last center">1КГ</div>
             </div>
           </div>
+        </div>
 
+        <div v-if="loading" class="loading-container"><div class="loading-line"></div></div>
+        
+        <div v-else class="grid-table">
           <div v-for="p in sortedProducts" :key="p.id" 
-               :class="['grid-row', 'clickable-row', { 'out': p.isOut }]"
+               :class="['grid-row', 'clickable-row', { 'out': p.isOut, 'simulated-hover': autoHighlightId === p.id }]"
                @click="p.link && p.link.length > 5 ? open(p.link) : null">
             
             <div class="row-visual-layer">
@@ -211,7 +208,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 const isDark = ref(true); 
 const loading = ref(true); 
@@ -225,6 +222,8 @@ const activeGender = ref('ВСЕ');
 const activeQuality = ref('ВСЕ'); 
 const sortBy = ref('id');
 const activeFactory = ref('ВСЕ');
+const autoHighlightId = ref(null);
+let highlightInterval = null;
 
 const showPrices = ref({ p50: true, p500: true, p1000: true });
 const priceLabels = { p50: '50Г', p500: '500Г', p1000: '1КГ' };
@@ -234,7 +233,6 @@ const genderOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'M', val: 'm
 const qualityOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'TOP', val: 'TOP' }, { label: 'Q1', val: 'Q1' }, { label: 'Q2', val: 'Q2' }];
 const factoryOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'LUZI', val: 'LUZI' }, { label: 'EPS', val: 'EPS' }, { label: 'SELUZ', val: 'SELUZ' }];
 
-// UPDATED: BIG BOLD RUBLE AND ID with FIXED CONTRAST CLASS
 const sortOptions = [
   { labelHTML: '<span class="big-txt">ID</span>', val: 'id' }, 
   { labelHTML: '<span class="big-txt">₽</span>▲', val: 'asc' }, 
@@ -292,7 +290,27 @@ const loadData = async () => {
     const res = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTtT4zLEY49maKt0VxanZWA2ORKO1h39Mc5wB-XcZclDTmWfroFxQNAPxomg3x0-w/pub?gid=1234145733&single=true&output=csv');
     products.value = parseCSV(await res.text());
     setTimeout(() => loading.value = false, 800);
+    startAutoHighlight();
   } catch (e) { console.error(e); }
+}
+
+const startAutoHighlight = () => {
+  highlightInterval = setInterval(() => {
+    // Only highlight if products are loaded
+    if (sortedProducts.value.length > 0) {
+      // Pick random visible index
+      const visible = sortedProducts.value;
+      const randomIdx = Math.floor(Math.random() * visible.length);
+      const product = visible[randomIdx];
+      
+      // Do not highlight if out of stock (optional preference)
+      if (product) {
+         autoHighlightId.value = product.id;
+         // Remove highlight after 2 seconds
+         setTimeout(() => { autoHighlightId.value = null; }, 2000);
+      }
+    }
+  }, 6000); // Every 6 seconds
 }
 
 const hideSug = () => setTimeout(() => showSug.value = false, 200);
@@ -332,38 +350,55 @@ const stats = computed(() => {
 const getSex = (g) => ({ m: 'МУЖ', w: 'ЖЕН', y: 'УНИ' }[g] || '—');
 const open = (u) => window.open(u.startsWith('http') ? u : `https://${u}`, '_blank');
 onMounted(loadData);
+onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 </script>
 
 <style scoped>
-/* NEW FONT IMPORT: Quicksand for a softer, rounded look */
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 .bahur-terminal {
   --bg: #000; --text: #fff; --border: rgba(255,255,255,0.08); --dim: #555; --green: #00ff88; --red: #ff3b30;
   --panel-bg: rgba(10,10,10,0.98); --seg-bg: rgba(255,255,255,0.08); --seg-act: #fff; --seg-txt-act: #000;
   --aura-bg: rgba(0,0,0,0.4); --aura-text: #fff;
+  --track-bg: rgba(255,255,255,0.15); /* Track color default */
+  --sticky-bg: rgba(0,0,0,0.85); /* Sticky header bg */
+  
   min-height: 100vh; background: var(--bg); color: var(--text); 
-  font-family: 'Quicksand', sans-serif; /* APPLIED SOFT FONT */
+  font-family: 'Quicksand', sans-serif;
   transition: 0.1s;
 }
-.noir { --bg: #000; --text: #fff; --aura-bg: rgba(0,0,0,0.4); }
+
+.noir { --bg: #000; --text: #fff; --aura-bg: rgba(0,0,0,0.4); --track-bg: rgba(255,255,255,0.15); --sticky-bg: rgba(0,0,0,0.85); }
+
 .bahur-terminal:not(.noir) { 
   --bg: #f2f2f7; 
   --text: #000; --border: rgba(0,0,0,0.1); --dim: #888; 
   --panel-bg: rgba(15,15,15,0.98); --seg-bg: rgba(255,255,255,0.1); --seg-act: #fff; --seg-txt-act: #000;
   --aura-bg: rgba(255,255,255,0.5); --aura-text: #000;
+  --track-bg: rgba(0,0,0,0.1); /* Darker track for light mode */
+  --sticky-bg: rgba(242,242,247,0.85); /* Sticky header bg light */
 }
 
 .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
-.mono { font-family: 'JetBrains Mono', monospace; } /* Keep numbers mono */
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* STICKY NAV GROUP - UNIFIED */
+.sticky-nav-group {
+  position: sticky; top: 0; z-index: 500;
+  background: var(--sticky-bg);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--text);
+  margin-bottom: 0;
+}
+/* Remove bottom border from child items to avoid double lines */
+.top-bar-controls { border-bottom: none !important; }
 
 /* CONTROLS NEW LAYOUT */
-.relative-zone { position: relative; margin-bottom: 25px; z-index: 200; }
+.relative-zone { position: relative; z-index: 501; }
 
 .top-bar-controls {
   display: flex; justify-content: space-between; align-items: center; 
   padding: 10px 0; border-bottom: 0.5px solid var(--border);
-  position: relative; z-index: 300;
 }
 
 /* CUSTOM SWITCH GROUP */
@@ -371,7 +406,7 @@ onMounted(loadData);
 .ctrl-icon-small { width: 14px; height: 14px; color: var(--green); }
 .ctrl-label-inline { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--text); opacity: 0.9; }
 
-/* --- NEW SOFT SWITCH (PILL + DOT) --- */
+/* SOFT SWITCH FIX */
 .soft-switch {
   width: 36px; height: 20px;
   position: relative; display: flex; align-items: center;
@@ -379,12 +414,12 @@ onMounted(loadData);
 }
 .soft-track {
   position: absolute; width: 100%; height: 100%;
-  background: rgba(255,255,255,0.15); /* Soft background like image */
-  border-radius: 20px; /* Full pill shape */
+  background: var(--track-bg); /* USES VAR NOW */
+  border-radius: 20px;
   transition: 0.3s ease;
 }
 .soft-knob {
-  width: 14px; height: 14px; background: #333; /* Dark knob */
+  width: 14px; height: 14px; background: #333;
   border-radius: 50%; position: absolute; left: 3px;
   display: flex; justify-content: center; align-items: center;
   transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -395,10 +430,9 @@ onMounted(loadData);
   background: #666; transition: 0.3s;
 }
 
-/* Active State for Soft Switch */
-.soft-switch.active .soft-track { background: rgba(255,255,255,0.25); }
+.soft-switch.active .soft-track { background: rgba(0,255,136, 0.2); }
 .soft-switch.active .soft-knob { transform: translateX(16px); background: #222; }
-.soft-switch.active .knob-dot { background: #00ff88; box-shadow: 0 0 5px #00ff88; } /* Neon Green Dot */
+.soft-switch.active .knob-dot { background: #00ff88; box-shadow: 0 0 5px #00ff88; }
 
 /* SETTINGS BUTTON */
 .settings-btn {
@@ -406,21 +440,18 @@ onMounted(loadData);
   background: none; border: none; color: var(--text);
   font-family: 'Quicksand', sans-serif;
   font-size: 11px; font-weight: 700; letter-spacing: 1px; cursor: pointer;
-  z-index: 301;
 }
 .btn-icon { width: 16px; height: 16px; opacity: 0.8; }
 
-/* CLICK OUTSIDE OVERLAY */
 .click-overlay {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
   z-index: 800; background: transparent;
 }
 
-/* BAHUR MENU POPUP - SOFT & DARK */
 .bahur-popup-menu {
   position: absolute; top: 50px; right: 0; width: 260px;
   background: var(--panel-bg); backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; /* Smooth rounded corners */
+  border: 1px solid rgba(255,255,255,0.05); border-radius: 12px;
   padding: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
   display: flex; flex-direction: column; gap: 14px;
   z-index: 999;
@@ -440,7 +471,6 @@ onMounted(loadData);
   letter-spacing: 1.5px; opacity: 0.9; text-transform: uppercase; 
 }
 
-/* SEGMENTED CONTROL - ROUNDED */
 .seg-control {
   display: flex; background: rgba(255,255,255,0.05); border-radius: 8px; padding: 3px;
 }
@@ -456,25 +486,19 @@ onMounted(loadData);
   background: #fff; opacity: 1;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
-
-/* FORCE BLACK TEXT ON ACTIVE BUTTONS (Fixes visibility issue) */
 .seg-btn.active, .seg-btn.active span, .seg-btn.active :deep(.big-txt) {
   color: #000 !important;
   font-weight: 800;
 }
-
-/* BIG TEXT CLASSES */
 :deep(.big-txt) { 
   font-family: 'JetBrains Mono'; font-weight: 700; font-size: 13px; 
   vertical-align: middle; line-height: 1; display: inline-block;
   margin-right: 2px;
 }
 
-/* POP TRANSITION */
 .pop-enter-active, .pop-leave-active { transition: all 0.2s ease-out; }
 .pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(-5px) scale(0.98); }
 
-/* --- EXISTING STYLES --- */
 .badge-new-square { 
   display: inline-block; background: var(--text); color: var(--bg); 
   font-size: 7px; font-weight: 900; padding: 1px 3px; margin-bottom: 4px; line-height: 1;
@@ -488,7 +512,7 @@ onMounted(loadData);
 .logo-strip-box { display: inline-block; position: relative; padding: 12px 60px; }
 .strip { height: 0.5px; background: var(--text); width: 100%; position: absolute; left: 0; opacity: 0.3; }
 .strip.top { top: 0; } .strip.bottom { bottom: 0; }
-.logo-text { font-size: 36px; font-weight: 900; margin: 0; letter-spacing: 0.25em; font-family: 'Inter', sans-serif; } /* Logo stays distinct */
+.logo-text { font-size: 36px; font-weight: 900; margin: 0; letter-spacing: 0.25em; font-family: 'Inter', sans-serif; }
 .logo-url { font-size: 9px; color: var(--dim); font-weight: 700; letter-spacing: 2px; margin-top: 5px; }
 .theme-centered { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: none; border: 0.5px solid var(--border); color: var(--text); padding: 4px 8px; cursor: pointer; border-radius: 2px; font-size: 12px; }
 
@@ -508,16 +532,24 @@ onMounted(loadData);
 
 .search-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
 .search-icon { width: 15px; height: 15px; color: var(--dim); margin-right: 10px; }
-.header-search { width: 100%; background: none; border: none; color: var(--text); font-size: 12px; font-family: 'Quicksand'; outline: none; letter-spacing: 0.5px; font-weight: 600; }
+/* UPDATED SEARCH FONT TO MATCH HEADERS */
+.header-search { 
+  width: 100%; background: none; border: none; color: var(--text); 
+  font-family: 'Quicksand'; outline: none; 
+  text-transform: uppercase; font-weight: 700; letter-spacing: 1.5px; font-size: 10px;
+}
+.header-search::placeholder { opacity: 0.5; color: var(--text); }
 
-.grid-table { display: flex; flex-direction: column; width: 100%; min-width: 1000px; border: 0.5px solid var(--border); }
+.grid-table { display: flex; flex-direction: column; width: 100%; min-width: 1000px; border: 0.5px solid var(--border); border-top: none; }
 .grid-row { 
   display: grid; 
   grid-template-columns: 60px 1fr 80px 120px 120px calc(var(--p-cols) * 80px); 
   align-items: center; 
   background: var(--bg); border-bottom: 0.5px solid var(--border); position: relative; overflow: hidden; 
 }
-.sticky-head { position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--text); background: var(--bg); }
+/* HEAD IS NOW IN STICKY GROUP, NOT TABLE */
+.grid-row.head { border-bottom: none; background: transparent; }
+
 .cell { height: 100%; display: flex; align-items: center; padding: 15px; border-right: 0.5px solid var(--border); }
 .head-txt { font-size: 8px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 1.5px; }
 .center { justify-content: center; text-align: center; }
@@ -526,21 +558,32 @@ onMounted(loadData);
 .clickable-row { cursor: pointer; transition: 0.3s; }
 .out { opacity: 0.5; }
 
+/* AURA EFFECT */
 .row-aura-overlay {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   opacity: 0; backdrop-filter: blur(0px); background: transparent;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10;
+  pointer-events: none; /* Allows click through */
 }
-.clickable-row:hover .row-aura-overlay, .clickable-row:active .row-aura-overlay {
+/* Hover OR Simulated Hover triggers aura */
+.clickable-row:hover .row-aura-overlay, 
+.clickable-row.simulated-hover .row-aura-overlay {
   opacity: 1; backdrop-filter: blur(8px); background: var(--aura-bg);
 }
+/* CLICK removes Aura (Active state) */
+.clickable-row:active .row-aura-overlay {
+  opacity: 0 !important; backdrop-filter: none !important;
+}
+
 .aura-text {
   font-size: 11px; font-weight: 900; letter-spacing: 5px; color: var(--aura-text);
   transform: translateY(15px); opacity: 0; transition: 0.5s;
 }
-.clickable-row:hover .aura-text, .clickable-row:active .aura-text {
+.clickable-row:hover .aura-text,
+.clickable-row.simulated-hover .aura-text {
   opacity: 1; transform: translateY(0);
 }
+.clickable-row:active .aura-text { opacity: 0 !important; }
 
 .badge-square-matte { font-size: 9px; font-weight: 700; border: 0.5px solid var(--border); padding: 5px 12px; letter-spacing: 1px; text-transform: uppercase; margin: 0 auto; color: var(--text); opacity: 0.8; }
 .m-square-matte { font-size: 8px; font-weight: 700; border: 0.5px solid var(--border); padding: 2px 6px; opacity: 0.7; text-transform: uppercase; }
