@@ -51,34 +51,81 @@
         </div>
       </section>
 
-      <section class="controls-luxury">
-        <div class="ctrl-layout">
-          <div class="ui-group"><label class="ctrl-label">НОВИНКИ</label>
-            <div class="btn-grid"><button v-for="n in newOptions" :key="n.val" @click="activeNew = n.val" :class="{ active: activeNew === n.val }">{{ n.label }}</button></div>
+      <section class="controls-luxury relative-zone">
+        <div class="top-bar-controls">
+          
+          <div class="switch-group" @click="toggleNew">
+             <label class="ctrl-label-inline">НОВИНКИ</label>
+             <div :class="['bahur-switch', { 'active': isNewOnly }]">
+               <div class="b-switch-track"></div>
+               <div class="b-switch-handle"></div>
+             </div>
           </div>
-          <div class="ui-group"><label class="ctrl-label">КАЧЕСТВО</label>
-            <div class="btn-grid"><button v-for="q in qualityOptions" :key="q.val" @click="activeQuality = q.val" :class="{ active: activeQuality === q.val }">{{ q.label }}</button></div>
-          </div>
-          <div class="ui-group"><label class="ctrl-label">ФАБРИКА</label>
-            <div class="btn-grid"><button v-for="f in factoryOptions" :key="f.val" @click="activeFactory = f.val" :class="{ active: activeFactory === f.val }">{{ f.label }}</button></div>
-          </div>
-          <div class="ui-group"><label class="ctrl-label">ПОЛ</label>
-            <div class="btn-grid"><button v-for="g in genderOptions" :key="g.val" @click="activeGender = g.val" :class="{ active: activeGender === g.val }">{{ g.label }}</button></div>
-          </div>
-          <div class="ui-group"><label class="ctrl-label">СОРТИРОВКА</label>
-            <div class="btn-grid"><button v-for="s in sortOptions" :key="s.val" @click="sortBy = s.val" :class="{ active: sortBy === s.val }">{{ s.label }}</button></div>
-          </div>
-          <div class="ui-group">
-            <label class="ctrl-label">ВИДИМОСТЬ ЦЕН</label>
-            <div class="btn-grid">
-              <button v-for="(val, key) in priceLabels" :key="key" 
-                      @click="togglePrice(key)" 
-                      :class="{ active: showPrices[key] }">
-                {{ val }}
-              </button>
-            </div>
-          </div>
+
+          <button @click="showFilters = !showFilters" :class="['settings-btn', { 'active': showFilters }]">
+            <span v-if="!showFilters">НАСТРОЙКИ</span>
+            <span v-else>ЗАКРЫТЬ</span>
+            <svg class="settings-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
+          </button>
         </div>
+
+        <div v-if="showFilters" class="click-overlay" @click="showFilters = false"></div>
+
+        <transition name="pop">
+          <div v-if="showFilters" class="bahur-popup-menu">
+            
+            <div class="popup-row">
+              <div class="popup-head">
+                <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" /></svg>
+                <span class="popup-label">ПОЛ</span>
+              </div>
+              <div class="seg-control">
+                <button v-for="g in genderOptions" :key="g.val" @click="activeGender = g.val" :class="['seg-btn', { active: activeGender === g.val }]">{{ g.label }}</button>
+              </div>
+            </div>
+
+            <div class="popup-row">
+              <div class="popup-head">
+                <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M18,15H16V17H18M18,11H16V13H18M20,19H12V17H14V15H12V13H14V11H12V9H20M10,7H8V5H10M10,11H8V9H10M10,15H8V13H10M10,19H8V17H10M6,7H4V5H6M6,11H4V9H6M6,15H4V13H6M6,19H4V17H6M12,7V3H2V21H22V7H12Z" /></svg>
+                <span class="popup-label">ФАБРИКА</span>
+              </div>
+              <div class="seg-control">
+                <button v-for="f in factoryOptions" :key="f.val" @click="activeFactory = f.val" :class="['seg-btn', { active: activeFactory === f.val }]">{{ f.label }}</button>
+              </div>
+            </div>
+
+            <div class="popup-row">
+              <div class="popup-head">
+                 <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,2L14.5,9H22L16,13.5L18.5,20.5L12,16L5.5,20.5L8,13.5L2,9H9.5L12,2Z" /></svg>
+                 <span class="popup-label">КАЧЕСТВО</span>
+              </div>
+              <div class="seg-control">
+                <button v-for="q in qualityOptions" :key="q.val" @click="activeQuality = q.val" :class="['seg-btn', { active: activeQuality === q.val }]">{{ q.label }}</button>
+              </div>
+            </div>
+
+            <div class="popup-row">
+              <div class="popup-head">
+                <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M10 13V11H18V13H10M10 19V17H14V19H10M10 7V5H22V7H10M6 17H8.5L5 20.5L1.5 17H4V7H1.5L5 3.5L8.5 7H6V17Z" /></svg>
+                <span class="popup-label">СОРТИРОВКА</span>
+              </div>
+              <div class="seg-control">
+                <button v-for="s in sortOptions" :key="s.val" @click="sortBy = s.val" :class="['seg-btn', { active: sortBy === s.val }]">{{ s.label }}</button>
+              </div>
+            </div>
+
+            <div class="popup-row">
+              <div class="popup-head">
+                <svg class="pop-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M13,6.5V17.5L15.25,13L18,17.5L19.25,16.25L16.5,12L19.25,7.75L18,6.5L15.25,11L13,6.5M22,3H2V21H22V3M20,19H4V5H20V19Z" /></svg>
+                <span class="popup-label">СТОЛБЦЫ</span>
+              </div>
+              <div class="seg-control">
+                <button v-for="(val, key) in priceLabels" :key="key" @click="togglePrice(key)" :class="['seg-btn', { active: showPrices[key] }]">{{ val }}</button>
+              </div>
+            </div>
+
+          </div>
+        </transition>
       </section>
 
       <div class="table-frame">
@@ -111,19 +158,14 @@
             <div class="row-visual-layer">
               <div class="cell id-zone-square center">
                 <div class="id-sq-top mono">{{ p.id }}</div>
-                
                 <div v-if="p.isNew" class="badge-new-square">NEW</div>
-                
                 <div :class="['lamp-sq', p.isOut ? 'red' : (p.isNew ? 'green' : 'standard')]"></div>
               </div>
               
               <div class="cell name border-right-mobile">
                 <div class="scent-info">
-                  <span class="brand-code">
-                    {{ p.brand }} 
-                  </span>
+                  <span class="brand-code">{{ p.brand }}</span>
                   <span class="scent-title">{{ p.name }}</span>
-                  
                   <div class="mobile-only-meta">
                     <span class="m-square-matte">{{ getSex(p.gender) }}</span> 
                     <span class="m-square-matte">{{ p.factory }}</span> 
@@ -158,19 +200,29 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-const isDark = ref(true); const loading = ref(true); const products = ref([]); const search = ref(''); const showSug = ref(false);
-const activeGender = ref('ВСЕ'); const activeQuality = ref('ВСЕ'); const sortBy = ref('id');
-const activeFactory = ref('ВСЕ'); const activeNew = ref('ВСЕ');
+const isDark = ref(true); 
+const loading = ref(true); 
+const products = ref([]); 
+const search = ref(''); 
+const showSug = ref(false);
+const showFilters = ref(false);
+
+const isNewOnly = ref(false);
+const activeGender = ref('ВСЕ'); 
+const activeQuality = ref('ВСЕ'); 
+const sortBy = ref('id');
+const activeFactory = ref('ВСЕ');
 
 const showPrices = ref({ p50: true, p500: true, p1000: true });
 const priceLabels = { p50: '50Г', p500: '500Г', p1000: '1КГ' };
 const activePriceCount = computed(() => Object.values(showPrices.value).filter(Boolean).length);
 
-const genderOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'МУЖ', val: 'm' }, { label: 'ЖЕН', val: 'w' }, { label: 'УНИ', val: 'y' }];
+const genderOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'M', val: 'm' }, { label: 'Ж', val: 'w' }, { label: 'У', val: 'y' }];
 const qualityOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'TOP', val: 'TOP' }, { label: 'Q1', val: 'Q1' }, { label: 'Q2', val: 'Q2' }];
 const factoryOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'LUZI', val: 'LUZI' }, { label: 'EPS', val: 'EPS' }, { label: 'SELUZ', val: 'SELUZ' }];
-const newOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'НОВИНКИ', val: 'NEW' }];
-const sortOptions = [{ label: 'ID', val: 'id' }, { label: 'ЦЕНА ↑', val: 'asc' }, { label: 'ЦЕНА ↓', val: 'desc' }];
+const sortOptions = [{ label: '№', val: 'id' }, { label: '₽ ↑', val: 'asc' }, { label: '₽ ↓', val: 'desc' }];
+
+const toggleNew = () => isNewOnly.value = !isNewOnly.value;
 
 const togglePrice = (key) => {
   const activeKeys = Object.values(showPrices.value).filter(Boolean);
@@ -188,7 +240,6 @@ const parseCSV = (data) => {
     let g = col[4] ? col[4].toLowerCase().trim() : '';
     let fG = (g === 'm' || g === 'м' || g.includes('муж')) ? 'm' : (g === 'w' || g === 'ж' || g.includes('жен')) ? 'w' : (g === 'y' || g === 'у' || g.includes('уни')) ? 'y' : '';
     
-    // ЛОГИКА 11 КОЛОНКИ
     const statusCol = col[10] ? col[10].trim() : '';
     const rawNote = (col[11] || '').toUpperCase();
     const brand = col[2] || '';
@@ -196,11 +247,7 @@ const parseCSV = (data) => {
     
     const hasPlus = statusCol.includes('+'); 
     const hasMinus = statusCol.includes('-'); 
-
-    // Определение новинки
     const isNew = hasPlus || statusCol.toUpperCase().includes('NEW') || rawNote.includes('NEW') || brand.toUpperCase().includes('NEW') || name.toUpperCase().includes('NEW');
-    
-    // Определение отсутствия
     const isOut = hasMinus;
 
     return { 
@@ -238,8 +285,7 @@ const filteredProducts = computed(() => {
     const matchesGender = activeGender.value === 'ВСЕ' || p.gender === activeGender.value;
     const matchesQuality = activeQuality.value === 'ВСЕ' || p.quality === activeQuality.value;
     const matchesFactory = activeFactory.value === 'ВСЕ' || p.factory.toUpperCase().includes(activeFactory.value);
-    const matchesNew = activeNew.value === 'ВСЕ' || p.isNew;
-    
+    const matchesNew = !isNewOnly.value || p.isNew;
     return matchesSearch && matchesGender && matchesQuality && matchesFactory && matchesNew;
   });
 })
@@ -274,36 +320,118 @@ onMounted(loadData);
 
 .bahur-terminal {
   --bg: #000; --text: #fff; --border: rgba(255,255,255,0.08); --dim: #555; --green: #00ff88; --red: #ff3b30;
+  --panel-bg: rgba(20,20,20,0.95); --seg-bg: rgba(255,255,255,0.1); --seg-act: #fff; --seg-txt-act: #000;
   --aura-bg: rgba(0,0,0,0.4); --aura-text: #fff;
   min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; transition: 0.1s;
 }
 .noir { --bg: #000; --text: #fff; --aura-bg: rgba(0,0,0,0.4); }
 .bahur-terminal:not(.noir) { 
-  --bg: #fff; --text: #000; --border: rgba(0,0,0,0.1); --dim: #888; 
+  --bg: #f2f2f7; 
+  --text: #000; --border: rgba(0,0,0,0.1); --dim: #888; 
+  --panel-bg: rgba(255,255,255,0.98); --seg-bg: rgba(0,0,0,0.05); --seg-act: #000; --seg-txt-act: #fff;
   --aura-bg: rgba(255,255,255,0.5); --aura-text: #000;
 }
 
 .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
-/* Компактный стиль для NEW */
-.badge-new-square { 
-  display: inline-block;
-  background: var(--text); 
-  color: var(--bg); 
-  font-size: 7px; 
-  font-weight: 900; 
-  padding: 1px 3px; 
-  margin-bottom: 4px;
-  line-height: 1;
+/* CONTROLS NEW LAYOUT */
+.relative-zone { position: relative; margin-bottom: 25px; z-index: 200; }
+
+.top-bar-controls {
+  display: flex; justify-content: space-between; align-items: center; 
+  padding: 10px 0; border-bottom: 0.5px solid var(--border);
+  position: relative; z-index: 300; /* Above overlay */
 }
 
-/* LOADING */
+/* CUSTOM SWITCH: INDUSTRIAL STYLE */
+.switch-group { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.ctrl-label-inline { font-size: 10px; font-weight: 900; letter-spacing: 2px; color: var(--text); opacity: 0.8; }
+
+.bahur-switch {
+  width: 36px; height: 20px;
+  position: relative; display: flex; align-items: center;
+  transition: 0.3s ease;
+}
+.b-switch-track {
+  position: absolute; width: 100%; height: 100%;
+  border: 1px solid var(--border); background: var(--seg-bg);
+  border-radius: 4px;
+}
+.b-switch-handle {
+  width: 14px; height: 14px; background: var(--text);
+  border-radius: 2px; position: absolute; left: 3px;
+  transition: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+/* Active State */
+.bahur-switch.active .b-switch-track { background: var(--text); border-color: var(--text); }
+.bahur-switch.active .b-switch-handle { transform: translateX(16px); background: var(--bg); }
+
+/* SETTINGS BUTTON */
+.settings-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: none; border: none; color: var(--text);
+  font-size: 10px; font-weight: 900; letter-spacing: 1px; cursor: pointer;
+  z-index: 301;
+}
+.settings-icon { width: 18px; height: 18px; }
+
+/* CLICK OUTSIDE OVERLAY */
+.click-overlay {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  z-index: 800; background: transparent;
+}
+
+/* BAHUR MENU POPUP (REFINED) */
+.bahur-popup-menu {
+  position: absolute; top: 50px; right: 0; width: 260px; /* FIXED WIDTH */
+  background: var(--panel-bg); backdrop-filter: blur(15px);
+  border: 0.5px solid var(--border); border-radius: 12px;
+  padding: 12px; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+  display: flex; flex-direction: column; gap: 12px;
+  z-index: 999;
+}
+
+.popup-row {
+  display: flex; flex-direction: column; gap: 6px;
+  border-bottom: 0.5px solid var(--border); padding-bottom: 8px;
+}
+.popup-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+.popup-head { display: flex; align-items: center; gap: 8px; }
+.pop-icon { width: 14px; height: 14px; color: var(--dim); }
+.popup-label { font-size: 9px; font-weight: 900; color: var(--text); letter-spacing: 1.5px; opacity: 0.8; }
+
+/* COMPACT SEGMENTED CONTROL */
+.seg-control {
+  display: flex; background: var(--seg-bg); border-radius: 6px; padding: 2px;
+}
+.seg-btn {
+  flex: 1; background: transparent; border: none; color: var(--text);
+  padding: 6px 0; font-size: 8px; font-weight: 700;
+  border-radius: 4px; cursor: pointer; transition: 0.2s;
+  opacity: 0.5; text-align: center;
+}
+.seg-btn.active {
+  background: var(--seg-act); color: var(--seg-txt-act); opacity: 1;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+/* POP TRANSITION */
+.pop-enter-active, .pop-leave-active { transition: all 0.2s ease-out; }
+.pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(-5px) scale(0.98); }
+
+/* --- EXISTING STYLES (UNCHANGED) --- */
+.badge-new-square { 
+  display: inline-block; background: var(--text); color: var(--bg); 
+  font-size: 7px; font-weight: 900; padding: 1px 3px; margin-bottom: 4px; line-height: 1;
+}
+
 .loading-container { display: flex; justify-content: center; align-items: center; height: 300px; }
 .loading-line { width: 0; height: 1px; background: var(--text); animation: load 1.5s infinite ease-in-out; }
 @keyframes load { 0% { width: 0; opacity: 0; } 50% { width: 200px; opacity: 1; } 100% { width: 0; opacity: 0; } }
 
-/* HEADER */
 .header-manifest { text-align: center; margin-bottom: 30px; }
 .logo-strip-box { display: inline-block; position: relative; padding: 12px 60px; }
 .strip { height: 0.5px; background: var(--text); width: 100%; position: absolute; left: 0; opacity: 0.3; }
@@ -312,16 +440,13 @@ onMounted(loadData);
 .logo-url { font-size: 9px; color: var(--dim); font-weight: 700; letter-spacing: 2px; margin-top: 5px; }
 .theme-centered { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: none; border: 0.5px solid var(--border); color: var(--text); padding: 4px 8px; cursor: pointer; border-radius: 2px; font-size: 12px; }
 
-/* DASHBOARD */
 .dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; }
 .stat-card { border: 0.5px solid var(--border); padding: 18px; background: var(--bg); border-left: 3.5px solid var(--text); }
 .d-label { display: block; font-size: 7px; font-weight: 900; color: var(--dim); margin-bottom: 12px; letter-spacing: 1.5px; text-transform: uppercase; }
 .stat-card .v { font-size: 24px; font-weight: 700; }
-
 .responsive-text { font-size: clamp(10px, 1.1vw, 14px); }
 .avg-row { margin-bottom: 4px; color: var(--dim); }
 .avg-row .val { color: var(--text); font-weight: 700; margin-left: 4px; }
-
 .q-row-stacked, .stock-box-stacked { margin-bottom: 10px; }
 .q-meta { display: flex; justify-content: space-between; font-size: 9px; font-weight: 600; margin-bottom: 5px; }
 .op-5 { opacity: 0.5; }
@@ -329,20 +454,10 @@ onMounted(loadData);
 .q-fill-neon { height: 100%; background: var(--text); box-shadow: 0 0 5px var(--text); transition: 1s ease-out; }
 .v-small { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
 
-/* FILTERS */
-.controls-luxury { margin-bottom: 25px; }
-.ctrl-layout { display: flex; flex-wrap: wrap; gap: 15px; }
-.ctrl-label { display: block; font-size: 8px; font-weight: 900; color: var(--text); margin-bottom: 8px; letter-spacing: 2px; opacity: 0.4; }
-.btn-grid { display: flex; gap: 5px; }
-.btn-grid button { background: none; border: 0.5px solid var(--border); color: var(--dim); padding: 7px 16px; font-size: 9px; font-weight: 900; cursor: pointer; transition: 0.2s; }
-.btn-grid button.active { border-color: var(--text); color: var(--text); background: rgba(128,128,128,0.08); }
-
-/* COMPACT SEARCH */
 .search-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
 .search-icon { width: 15px; height: 15px; color: var(--dim); margin-right: 10px; }
 .header-search { width: 100%; background: none; border: none; color: var(--text); font-size: 11px; outline: none; letter-spacing: 1px; }
 
-/* GRID SYSTEM */
 .grid-table { display: flex; flex-direction: column; width: 100%; min-width: 1000px; border: 0.5px solid var(--border); }
 .grid-row { 
   display: grid; 
@@ -355,7 +470,6 @@ onMounted(loadData);
 .head-txt { font-size: 7px; font-weight: 900; color: var(--dim); text-transform: uppercase; letter-spacing: 1.5px; }
 .center { justify-content: center; text-align: center; }
 
-/* THE AURA EFFECT */
 .row-visual-layer { display: contents; }
 .clickable-row { cursor: pointer; transition: 0.3s; }
 .out { opacity: 0.5; }
@@ -376,37 +490,27 @@ onMounted(loadData);
   opacity: 1; transform: translateY(0);
 }
 
-/* BADGES */
 .badge-square-matte { font-size: 8px; font-weight: 900; border: 0.5px solid var(--border); padding: 5px 12px; letter-spacing: 2px; text-transform: uppercase; margin: 0 auto; color: var(--text); opacity: 0.6; }
 .m-square-matte { font-size: 7px; font-weight: 900; border: 0.5px solid var(--border); padding: 2px 6px; opacity: 0.5; text-transform: uppercase; }
 
-/* ID ZONE */
 .id-zone-square { flex-direction: column; gap: 5px; justify-content: center; border-right: 0.5px solid var(--border); padding: 8px 0; }
 .id-sq-top { font-size: 14px; font-weight: 900; color: var(--dim); }
 .lamp-sq { width: 14px; height: 3px; margin: 0 auto; border-radius: 1px; }
-
-/* ЦВЕТА ЛАМПОЧКИ */
 .lamp-sq.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
 .lamp-sq.red { background: var(--red); opacity: 0.8; }
-.lamp-sq.standard { background: var(--text); opacity: 0.5; } /* Белый (стандартный), менее яркий */
+.lamp-sq.standard { background: var(--text); opacity: 0.5; }
 
-/* CONTENT */
 .scent-info { width: 100%; padding-left: 10px; }
 .brand-code { font-size: 8px; font-weight: 900; opacity: 0.3; display: block; text-transform: uppercase; letter-spacing: 1px; }
 .scent-title { font-size: 16px; font-weight: 700; line-height: 1.1; }
 .mobile-only-meta { display: none; margin-top: 8px; gap: 5px; }
 
-/* PRICE BLOCK (DYNAMIC GRID) */
 .price-container { display: flex; flex-direction: column; height: 100%; width: 100%; }
-.price-section { 
-  display: grid; height: 100%; width: 100%; align-items: center; 
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-}
+.price-section { display: grid; height: 100%; width: 100%; align-items: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 .p-col { text-align: center; font-size: 15px; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
 .p-col.line { border-right: 0.5px solid var(--border); }
 .head-p .p-col { font-size: 7px; font-weight: 900; color: var(--dim); letter-spacing: 1.5px; }
 
-/* MOBILE REFINEMENT */
 @media (max-width: 900px) {
   .dash-grid { grid-template-columns: 1fr 1fr; }
   .grid-table { min-width: 100%; border: none; }
