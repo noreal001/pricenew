@@ -9,7 +9,14 @@
           <div class="strip bottom"></div>
           <div class="logo-url">WWW.BAHUR.STORE</div>
           
-          <button @click="isDark = !isDark" class="theme-centered">{{ isDark ? '☀' : '☾' }}</button>
+          <button @click="isDark = !isDark" class="header-icon-btn theme-pos">
+            <svg v-if="isDark" class="h-icon" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,2L14.39,5.42C13.65,5.15 12.84,5 12,5C11.16,5 10.35,5.15 9.61,5.42L12,2M3.34,7L7.5,7.46C7.18,8.14 7,8.89 7,9.67V14.33C7,15.11 7.18,15.86 7.5,16.54L3.34,17L5.36,12L3.34,7M12,22L9.61,18.58C10.35,18.85 11.16,19 12,19C12.84,19 13.65,18.85 14.39,18.58L12,22M20.66,7L18.64,12L20.66,17L16.5,16.54C16.82,15.86 17,15.11 17,14.33V9.67C17,8.89 16.82,8.14 16.5,7.46L20.66,7Z" />
+            </svg>
+            <svg v-else class="h-icon" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M17.75,4.09L15.22,6.03L16.13,9.09L13.5,7.28L10.87,9.09L11.78,6.03L9.25,4.09L12.44,4L13.5,1L14.56,4L17.75,4.09M21.25,11L19.61,12.25L20.2,14.23L18.5,13.06L16.8,14.23L17.39,12.25L15.75,11L17.81,10.95L18.5,9L19.19,10.95L21.25,11M18.97,15.95C19.8,15.87 20.69,17.05 20.16,17.8C19.84,18.25 19.5,18.67 19.08,19.07C15.17,23 8.84,23 4.94,19.07C1.03,15.17 1.03,8.83 4.94,4.93C5.34,4.53 5.76,4.17 6.21,3.85C6.96,3.32 8.14,4.21 8.06,5.04C6.93,8.39 8.5,12.5 12.31,14.31C14.12,15.17 16.5,15.2 18.97,15.95M17.33,17.97C14.5,17.81 11.7,16.64 9.53,14.5C7.3,12.23 6.13,9.3 5.96,6.38C3.2,10.12 3.66,15.29 7.15,18.78C10.63,22.27 15.8,22.73 19.54,19.97C18.86,19.43 18.12,18.77 17.33,17.97Z" />
+            </svg>
+          </button>
         </div>
       </header>
 
@@ -24,9 +31,9 @@
       <div v-else>
         
         <div class="dash-control-bar">
-           <button @click="showDash = !showDash" class="dash-icon-btn" title="Статистика">
-              <svg viewBox="0 0 24 24" class="dash-icon">
-                <path fill="currentColor" d="M10,20H14V4H10V20M4,20H8V12H4V20M16,9V20H20V9H16Z" />
+           <button @click="showDash = !showDash" class="header-icon-btn stats-pos" title="Статистика">
+              <svg :class="['h-icon', { 'closed-arrow': !showDash }]" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M7,20H9V14H7V20M11,20H13V12H11V20M15,20H17V16H15V20Z" />
               </svg>
            </button>
         </div>
@@ -91,7 +98,9 @@
                             <div class="brands-list-vertical">
                               <button @click="selectBrand('')" class="brand-row-btn rus-font">
                                 <div class="brand-left-group">
-                                  <svg class="mini-logo-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" /></svg>
+                                  <svg class="circle-check-icon" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" />
+                                  </svg>
                                   <span>Все</span>
                                 </div>
                                 <svg v-if="searchBrand === ''" class="check-status" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
@@ -100,7 +109,7 @@
                                 <div class="brand-left-group">
                                   <span class="brand-txt-truncate">{{ b }}</span>
                                 </div>
-                                <svg v-if="searchBrand === b" class="check-status" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
+                                <svg v-if="searchBrand === b || searchBrand === ''" class="check-status" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
                               </button>
                               <div v-if="filteredBrandsDropdown.length === 0" class="no-results rus-font">Нет совпадений</div>
                             </div>
@@ -124,16 +133,20 @@
                             <div class="brands-list-vertical">
                               <button @click="selectAroma('')" class="brand-row-btn rus-font">
                                 <div class="brand-left-group">
-                                  <svg class="mini-logo-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" /></svg>
+                                  <svg class="circle-check-icon" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" />
+                                  </svg>
                                   <span>Все</span>
                                 </div>
                                 <svg v-if="searchAroma === ''" class="check-status" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
                               </button>
+                              
                               <button v-for="(item, index) in aromaSuggestions" :key="index" @click="selectAroma(item.name)" class="brand-row-btn">
                                 <div class="brand-left-group">
                                   <span class="aroma-sug-brand eng-font">{{ item.brand }}</span>
                                   <span class="aroma-sug-name rus-font">{{ item.name }}</span>
                                 </div>
+                                <svg v-if="searchAroma === item.name || searchAroma === ''" class="check-status" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
                               </button>
                               <div v-if="aromaSuggestions.length === 0 && tempAromaInput" class="no-results rus-font">Нет совпадений</div>
                             </div>
@@ -276,7 +289,7 @@ import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 
 const isDark = ref(true); 
 const loading = ref(true); 
-const loaderColor = ref('red'); // Default
+const loaderColor = ref('red');
 const errorMsg = ref(null);
 const products = ref([]); 
 const showDash = ref(true);
@@ -377,10 +390,8 @@ const parseCSV = (data) => {
 
 const loadData = async () => {
   loading.value = true;
-  // Random spiral color
   const colors = ['red', 'blue', 'purple'];
   loaderColor.value = colors[Math.floor(Math.random() * colors.length)];
-  
   errorMsg.value = null;
   try {
     const res = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTtT4zLEY49maKt0VxanZWA2ORKO1h39Mc5wB-XcZclDTmWfroFxQNAPxomg3x0-w/pub?gid=1234145733&single=true&output=csv');
@@ -478,6 +489,7 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 
 .bahur-terminal {
   --bg: #000; --text: #fff; --border: rgba(255,255,255,0.08); --dim: #555; --green: #00ff88; --red: #ff3b30;
+  /* Darker Popup Background */
   --panel-bg: rgba(0,0,0,0.95); --aura-bg: rgba(0,0,0,0.4); --aura-text: #fff;
   --sticky-bg: rgba(0,0,0,0.9); 
   
@@ -610,6 +622,9 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .aroma-sug-brand { font-weight: 900; opacity: 0.5; margin-right: 5px; font-size: 10px; }
 .aroma-sug-name { font-weight: 700; font-size: 11px; }
 
+/* Custom Circle Check SVG Class */
+.circle-check-icon { width: 18px; height: 18px; color: var(--text); opacity: 0.8; }
+
 .check-status { width: 14px; height: 14px; color: var(--text); } 
 .no-results { text-align: center; color: var(--dim); font-size: 11px; padding: 10px; }
 
@@ -637,17 +652,28 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .strip.top { top: 0; } .strip.bottom { bottom: 0; }
 .logo-text { font-size: 36px; font-weight: 900; margin: 0; letter-spacing: 0.25em; font-family: 'Kollektif', sans-serif; }
 .logo-url { font-size: 9px; color: var(--dim); font-weight: 700; letter-spacing: 2px; margin-top: 5px; font-family: 'Kollektif', sans-serif;}
-.theme-centered { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: none; border: 0.5px solid var(--border); color: var(--text); padding: 4px 8px; cursor: pointer; border-radius: 2px; font-size: 12px; }
+
+/* Theme Button & Stats Button Base Style */
+.header-icon-btn {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  background: none; 
+  border: 1px solid var(--border); /* Framed */
+  color: var(--text); 
+  width: 28px; height: 28px; /* Slightly larger frame */
+  border-radius: 50%; 
+  cursor: pointer; 
+  display: flex; align-items: center; justify-content: center;
+  transition: 0.2s;
+}
+.header-icon-btn:hover { background: rgba(125,125,125,0.1); }
+.theme-pos { right: 10px; }
+.stats-pos { left: 0; position: relative; transform: none; top: auto; margin-bottom: 15px; } /* Control Bar Position */
+
+.h-icon { width: 16px; height: 16px; }
+.closed-arrow { transform: rotate(180deg); transition: 0.3s; }
 
 /* Dashboard Control Bar (Left above Dash) */
-.dash-control-bar { padding-left: 2px; margin-bottom: 10px; display: flex; justify-content: flex-start; }
-.dash-icon-btn {
-  background: transparent; border: none; color: var(--text);
-  width: 24px; height: 24px; cursor: pointer; opacity: 0.6;
-  display: flex; align-items: center; justify-content: center; transition: 0.2s;
-}
-.dash-icon-btn:hover { opacity: 1; }
-.dash-icon { width: 18px; height: 18px; }
+.dash-control-bar { padding-left: 2px; display: flex; justify-content: flex-start; }
 
 .slide-fade-enter-active, .slide-fade-leave-active { transition: all 0.3s ease; max-height: 500px; opacity: 1; overflow: hidden; }
 .slide-fade-enter-from, .slide-fade-leave-to { max-height: 0; opacity: 0; margin-bottom: 0; }
@@ -687,13 +713,13 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .clickable-row { cursor: pointer; transition: 0.3s; }
 .out { opacity: 0.5; }
 
-/* NEW BADGE LOGIC */
+/* NEW BADGE IN BOX */
 .badge-new-box {
   background: var(--text); color: var(--bg);
   font-size: 8px; font-weight: 800;
   padding: 1px 3px; border-radius: 2px;
   margin: 2px auto 0;
-  display: none; /* Hidden by default */
+  display: inline-block;
 }
 .desk-only-new { display: inline-block; } /* Show on desktop */
 
