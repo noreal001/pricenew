@@ -22,9 +22,9 @@
           <div class="stat-card">
             <label class="d-label">СРЕДНЯЯ ЦЕНА</label>
             <div class="avg-list mono responsive-text">
-              <div class="avg-row">50г: <span class="val">{{ stats.avg50 }}₽</span></div>
-              <div class="avg-row">500г: <span class="val">{{ stats.avg500 }}₽</span></div>
-              <div class="avg-row">1кг: <span class="val">{{ stats.avg1000 }}₽</span></div>
+              <div v-if="showPrices.p50" class="avg-row">50г: <span class="val">{{ stats.avg50 }}₽</span></div>
+              <div v-if="showPrices.p500" class="avg-row">500г: <span class="val">{{ stats.avg500 }}₽</span></div>
+              <div v-if="showPrices.p1000" class="avg-row">1кг: <span class="val">{{ stats.avg1000 }}₽</span></div>
             </div>
           </div>
 
@@ -62,6 +62,16 @@
           <div class="ui-group"><label class="ctrl-label">СОРТИРОВКА</label>
             <div class="btn-grid"><button v-for="s in sortOptions" :key="s.val" @click="sortBy = s.val" :class="{ active: sortBy === s.val }">{{ s.label }}</button></div>
           </div>
+          <div class="ui-group">
+            <label class="ctrl-label">ВИДИМОСТЬ ЦЕН</label>
+            <div class="btn-grid">
+              <button v-for="(val, key) in priceLabels" :key="key" 
+                      @click="togglePrice(key)" 
+                      :class="{ active: showPrices[key] }">
+                {{ val }}
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -85,10 +95,11 @@
             <div class="cell desk-only head-txt center">ПОЛ</div>
             <div class="cell desk-only head-txt center">ФАБРИКА</div>
             <div class="cell desk-only head-txt center">КАЧЕСТВО</div>
-            <div class="price-section head-p">
-              <div class="p-col line center">50Г</div>
-              <div class="p-col line center">500Г</div>
-              <div class="p-col last center">1КГ</div>
+            
+            <div class="price-section head-p" :style="gridStyle">
+              <div v-if="showPrices.p50" class="p-col line center">50Г</div>
+              <div v-if="showPrices.p500" class="p-col line center">500Г</div>
+              <div v-if="showPrices.p1000" class="p-col last center">1КГ</div>
             </div>
           </div>
 
@@ -119,10 +130,10 @@
               <div class="cell desk-only center"><div class="badge-square-matte">{{ p.quality }}</div></div>
 
               <div class="price-container">
-                <div class="price-section mono center">
-                  <div class="p-col line">{{ p.p50 }}₽</div>
-                  <div class="p-col line">{{ p.p500 }}₽</div>
-                  <div class="p-col bold last">{{ p.p1000 }}₽</div>
+                <div class="price-section mono center" :style="gridStyle">
+                  <div v-if="showPrices.p50" class="p-col line">{{ p.p50 }}₽</div>
+                  <div v-if="showPrices.p500" class="p-col line">{{ p.p500 }}₽</div>
+                  <div v-if="showPrices.p1000" class="p-col bold last">{{ p.p1000 }}₽</div>
                 </div>
               </div>
             </div>
@@ -143,9 +154,24 @@ import { ref, computed, onMounted } from 'vue'
 const isDark = ref(true); const loading = ref(true); const products = ref([]); const search = ref(''); const showSug = ref(false);
 const activeGender = ref('ВСЕ'); const activeQuality = ref('ВСЕ'); const sortBy = ref('id');
 
+// Новая логика колонок
+const showPrices = ref({ p50: true, p500: true, p1000: true });
+const priceLabels = { p50: '50Г', p500: '500Г', p1000: '1КГ' };
+
 const genderOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'МУЖ', val: 'm' }, { label: 'ЖЕН', val: 'w' }, { label: 'УНИ', val: 'y' }];
 const qualityOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'TOP', val: 'TOP' }, { label: 'Q1', val: 'Q1' }, { label: 'Q2', val: 'Q2' }];
 const sortOptions = [{ label: 'ID', val: 'id' }, { label: 'ЦЕНА ↑', val: 'asc' }, { label: 'ЦЕНА ↓', val: 'desc' }];
+
+const togglePrice = (key) => {
+  const activeKeys = Object.values(showPrices.value).filter(Boolean);
+  if (showPrices.value[key] && activeKeys.length === 1) return; // Нельзя скрыть последнюю
+  showPrices.value[key] = !showPrices.value[key];
+}
+
+const gridStyle = computed(() => {
+  const count = Object.values(showPrices.value).filter(Boolean).length;
+  return { gridTemplateColumns: `repeat(${count}, 1fr)` };
+})
 
 const parseCSV = (data) => {
   const rows = data.split(/\r?\n/).filter(line => line.trim());
@@ -275,7 +301,7 @@ onMounted(loadData);
 .sug-item { padding: 10px 15px; font-size: 10px; cursor: pointer; border-bottom: 0.5px solid var(--border); color: var(--dim); }
 .sug-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
 
-/* GRID SYSTEM (LOCKED) */
+/* GRID SYSTEM */
 .grid-table { display: flex; flex-direction: column; width: 100%; min-width: 1000px; border: 0.5px solid var(--border); }
 .grid-row { 
   display: grid; grid-template-columns: 60px 1fr 80px 120px 120px 240px; align-items: center; 
@@ -286,25 +312,21 @@ onMounted(loadData);
 .head-txt { font-size: 7px; font-weight: 900; color: var(--dim); text-transform: uppercase; letter-spacing: 1.5px; }
 .center { justify-content: center; text-align: center; }
 
-/* THE AURA EFFECT (SOFT ECLIPSE) */
+/* THE AURA EFFECT */
 .row-visual-layer { display: contents; }
 .clickable-row { cursor: pointer; transition: 0.3s; }
-
 .row-aura-overlay {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   opacity: 0; backdrop-filter: blur(0px); background: transparent;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10;
 }
-
 .clickable-row:hover .row-aura-overlay, .clickable-row:active .row-aura-overlay {
   opacity: 1; backdrop-filter: blur(8px); background: var(--aura-bg);
 }
-
 .aura-text {
   font-size: 11px; font-weight: 900; letter-spacing: 5px; color: var(--aura-text);
   transform: translateY(15px); opacity: 0; transition: 0.5s;
 }
-
 .clickable-row:hover .aura-text, .clickable-row:active .aura-text {
   opacity: 1; transform: translateY(0);
 }
@@ -326,10 +348,13 @@ onMounted(loadData);
 .scent-title { font-size: 16px; font-weight: 700; line-height: 1.1; }
 .mobile-only-meta { display: none; margin-top: 8px; gap: 5px; }
 
-/* PRICE BLOCK (LOCKED CENTERED) */
+/* PRICE BLOCK (DYNAMIC GRID) */
 .price-container { display: flex; flex-direction: column; height: 100%; width: 100%; }
-.price-section { display: grid; grid-template-columns: repeat(3, 1fr); height: 100%; width: 100%; align-items: center; }
-.p-col { text-align: center; font-size: 15px; height: 100%; display: flex; align-items: center; justify-content: center; }
+.price-section { 
+  display: grid; height: 100%; width: 100%; align-items: center; 
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+.p-col { text-align: center; font-size: 15px; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; }
 .p-col.line { border-right: 0.5px solid var(--border); }
 .head-p .p-col { font-size: 7px; font-weight: 900; color: var(--dim); letter-spacing: 1.5px; }
 
@@ -340,22 +365,17 @@ onMounted(loadData);
   .cell { border-right: none; }
   .desk-only { display: none; }
   .mobile-only-meta { display: flex; }
-  
-  /* FIXED MOBILE GRID */
   .grid-row { grid-template-columns: 35px 1fr 165px; border-bottom: 0.5px solid var(--border); }
   .id-zone-square { border-right: none; padding-left: 2px !important; align-items: flex-start; }
   .id-sq-top { font-size: 9px; }
   .lamp-sq { width: 10px; margin: 0; }
-  
   .border-right-mobile { border-right: 0.5px solid var(--border) !important; padding-right: 5px; }
   .scent-info { padding-left: 2px; }
   .scent-title { font-size: 13px; }
-  
   .price-container { width: 165px; }
-  .price-section { grid-template-columns: 55px 55px 55px; justify-content: center; border-right: none; }
+  .price-section { border-right: none; }
   .p-col { padding: 0; font-size: 12px; border-right: 0.5px solid var(--border) !important; }
   .p-col.last { border-right: none !important; }
-
   .aura-text { font-size: 9px; letter-spacing: 2px; }
 }
 
