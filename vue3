@@ -53,11 +53,17 @@
 
       <section class="controls-luxury">
         <div class="ctrl-layout">
-          <div class="ui-group"><label class="ctrl-label">ПОЛ</label>
-            <div class="btn-grid"><button v-for="g in genderOptions" :key="g.val" @click="activeGender = g.val" :class="{ active: activeGender === g.val }">{{ g.label }}</button></div>
+          <div class="ui-group"><label class="ctrl-label">НОВИНКИ</label>
+            <div class="btn-grid"><button v-for="n in newOptions" :key="n.val" @click="activeNew = n.val" :class="{ active: activeNew === n.val }">{{ n.label }}</button></div>
           </div>
           <div class="ui-group"><label class="ctrl-label">КАЧЕСТВО</label>
             <div class="btn-grid"><button v-for="q in qualityOptions" :key="q.val" @click="activeQuality = q.val" :class="{ active: activeQuality === q.val }">{{ q.label }}</button></div>
+          </div>
+          <div class="ui-group"><label class="ctrl-label">ФАБРИКА</label>
+            <div class="btn-grid"><button v-for="f in factoryOptions" :key="f.val" @click="activeFactory = f.val" :class="{ active: activeFactory === f.val }">{{ f.label }}</button></div>
+          </div>
+          <div class="ui-group"><label class="ctrl-label">ПОЛ</label>
+            <div class="btn-grid"><button v-for="g in genderOptions" :key="g.val" @click="activeGender = g.val" :class="{ active: activeGender === g.val }">{{ g.label }}</button></div>
           </div>
           <div class="ui-group"><label class="ctrl-label">СОРТИРОВКА</label>
             <div class="btn-grid"><button v-for="s in sortOptions" :key="s.val" @click="sortBy = s.val" :class="{ active: sortBy === s.val }">{{ s.label }}</button></div>
@@ -85,11 +91,6 @@
               <div class="search-wrapper">
                 <svg class="search-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg>
                 <input v-model="search" type="text" placeholder="ПОИСК" class="header-search" @focus="showSug = true" @blur="hideSug" />
-                <div v-if="showSug && suggestions.length" class="search-suggestions custom-scroll">
-                  <div v-for="s in suggestions" :key="s.name" class="sug-item" @mousedown="search = s.name">
-                    <span class="sug-brand">{{ s.brand }}</span> {{ s.name }}
-                  </div>
-                </div>
               </div>
             </div>
             <div class="cell desk-only head-txt center">ПОЛ</div>
@@ -115,7 +116,10 @@
               
               <div class="cell name border-right-mobile">
                 <div class="scent-info">
-                  <span class="brand-code">{{ p.brand }}</span>
+                  <span class="brand-code">
+                    {{ p.brand }} 
+                    <span v-if="p.isNew" class="new-tag-inline">NEW</span>
+                  </span>
                   <span class="scent-title">{{ p.name }}</span>
                   <div class="mobile-only-meta">
                     <span class="m-square-matte">{{ getSex(p.gender) }}</span> 
@@ -153,15 +157,16 @@ import { ref, computed, onMounted } from 'vue'
 
 const isDark = ref(true); const loading = ref(true); const products = ref([]); const search = ref(''); const showSug = ref(false);
 const activeGender = ref('ВСЕ'); const activeQuality = ref('ВСЕ'); const sortBy = ref('id');
+const activeFactory = ref('ВСЕ'); const activeNew = ref('ВСЕ');
 
 const showPrices = ref({ p50: true, p500: true, p1000: true });
 const priceLabels = { p50: '50Г', p500: '500Г', p1000: '1КГ' };
-
-// Точечное изменение: Добавлен расчет количества активных колонок
 const activePriceCount = computed(() => Object.values(showPrices.value).filter(Boolean).length);
 
 const genderOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'МУЖ', val: 'm' }, { label: 'ЖЕН', val: 'w' }, { label: 'УНИ', val: 'y' }];
 const qualityOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'TOP', val: 'TOP' }, { label: 'Q1', val: 'Q1' }, { label: 'Q2', val: 'Q2' }];
+const factoryOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'LUZI', val: 'LUZI' }, { label: 'EPS', val: 'EPS' }, { label: 'SELUZ', val: 'SELUZ' }];
+const newOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'НОВИНКИ', val: 'NEW' }];
 const sortOptions = [{ label: 'ID', val: 'id' }, { label: 'ЦЕНА ↑', val: 'asc' }, { label: 'ЦЕНА ↓', val: 'desc' }];
 
 const togglePrice = (key) => {
@@ -170,9 +175,7 @@ const togglePrice = (key) => {
   showPrices.value[key] = !showPrices.value[key];
 }
 
-const gridStyle = computed(() => {
-  return { gridTemplateColumns: `repeat(${activePriceCount.value}, 1fr)` };
-})
+const gridStyle = computed(() => ({ gridTemplateColumns: `repeat(${activePriceCount.value}, 1fr)` }));
 
 const parseCSV = (data) => {
   const rows = data.split(/\r?\n/).filter(line => line.trim());
@@ -181,7 +184,30 @@ const parseCSV = (data) => {
     if (isNaN(parseInt(col[0])) || !col[2]) return null;
     let g = col[4] ? col[4].toLowerCase().trim() : '';
     let fG = (g === 'm' || g === 'м' || g.includes('муж')) ? 'm' : (g === 'w' || g === 'ж' || g.includes('жен')) ? 'w' : (g === 'y' || g === 'у' || g.includes('уни')) ? 'y' : '';
-    return { id: col[0], link: col[1] || '', brand: col[2], name: col[3], gender: fG, factory: col[5], quality: col[6], p50: parseInt(col[7]) || 0, p500: parseInt(col[8]) || 0, p1000: parseInt(col[9]) || 0, status: col[10] ? col[10].trim() : '' }
+    
+    // Точечное улучшение: ищем NEW в статусе (11 колонка) и примечании (12 колонка)
+    const rawStatus = (col[10] || '').toUpperCase();
+    const rawNote = (col[11] || '').toUpperCase();
+    const brand = col[2] || '';
+    const name = col[3] || '';
+    
+    // Логика определения новинки: NEW в любом из текстовых полей или в примечании
+    const isNew = rawStatus.includes('NEW') || rawNote.includes('NEW') || brand.toUpperCase().includes('NEW') || name.toUpperCase().includes('NEW') || rawStatus.includes('НОВ');
+
+    return { 
+      id: col[0], 
+      link: col[1] || '', 
+      brand: brand, 
+      name: name, 
+      gender: fG, 
+      factory: col[5] || '', 
+      quality: col[6] || '', 
+      p50: parseInt(col[7]) || 0, 
+      p500: parseInt(col[8]) || 0, 
+      p1000: parseInt(col[9]) || 0, 
+      status: col[10] ? col[10].trim() : '',
+      isNew: isNew
+    }
   }).filter(p => p !== null);
 }
 
@@ -193,19 +219,19 @@ const loadData = async () => {
   } catch (e) { console.error(e); }
 }
 
-const suggestions = computed(() => {
-  if (!search.value) return [];
-  const s = search.value.toLowerCase();
-  return products.value.filter(p => p.brand.toLowerCase().startsWith(s) || p.name.toLowerCase().startsWith(s))
-    .map(p => ({ brand: p.brand, name: p.name })).slice(0, 8);
-});
-
 const hideSug = () => setTimeout(() => showSug.value = false, 200);
 
 const filteredProducts = computed(() => {
   return products.value.filter(p => {
     const s = search.value.toLowerCase();
-    return (p.name.toLowerCase().includes(s) || p.brand.toLowerCase().includes(s)) && (activeGender.value === 'ВСЕ' || p.gender === activeGender.value) && (activeQuality.value === 'ВСЕ' || p.quality === activeQuality.value);
+    const matchesSearch = p.name.toLowerCase().includes(s) || p.brand.toLowerCase().includes(s);
+    const matchesGender = activeGender.value === 'ВСЕ' || p.gender === activeGender.value;
+    const matchesQuality = activeQuality.value === 'ВСЕ' || p.quality === activeQuality.value;
+    const matchesFactory = activeFactory.value === 'ВСЕ' || p.factory.toUpperCase().includes(activeFactory.value);
+    // Теперь фильтр Новинок использует заранее вычисленный флаг isNew
+    const matchesNew = activeNew.value === 'ВСЕ' || p.isNew;
+    
+    return matchesSearch && matchesGender && matchesQuality && matchesFactory && matchesNew;
   });
 })
 
@@ -251,6 +277,9 @@ onMounted(loadData);
 .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
+/* Тэг новинки */
+.new-tag-inline { font-size: 8px; background: var(--text); color: var(--bg); padding: 1px 4px; font-weight: 900; margin-left: 5px; vertical-align: middle; }
+
 /* LOADING */
 .loading-container { display: flex; justify-content: center; align-items: center; height: 300px; }
 .loading-line { width: 0; height: 1px; background: var(--text); animation: load 1.5s infinite ease-in-out; }
@@ -294,16 +323,8 @@ onMounted(loadData);
 .search-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
 .search-icon { width: 15px; height: 15px; color: var(--dim); margin-right: 10px; }
 .header-search { width: 100%; background: none; border: none; color: var(--text); font-size: 11px; outline: none; letter-spacing: 1px; }
-.search-suggestions { 
-  position: absolute; top: calc(100% + 15px); left: 0; width: 280px; 
-  background: var(--bg); border: 0.5px solid var(--border); z-index: 999; max-height: 250px; 
-  overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-.sug-item { padding: 10px 15px; font-size: 10px; cursor: pointer; border-bottom: 0.5px solid var(--border); color: var(--dim); }
-.sug-item:hover { background: rgba(255,255,255,0.03); color: var(--text); }
 
 /* GRID SYSTEM */
-/* Точечное изменение: Последняя колонка теперь зависит от количества выбранных цен */
 .grid-table { display: flex; flex-direction: column; width: 100%; min-width: 1000px; border: 0.5px solid var(--border); }
 .grid-row { 
   display: grid; 
@@ -369,7 +390,6 @@ onMounted(loadData);
   .cell { border-right: none; }
   .desk-only { display: none; }
   .mobile-only-meta { display: flex; }
-  /* Точечное изменение: Динамическая ширина для мобильной сетки */
   .grid-row { grid-template-columns: 35px 1fr calc(var(--p-cols) * 55px); border-bottom: 0.5px solid var(--border); }
   .id-zone-square { border-right: none; padding-left: 2px !important; align-items: flex-start; }
   .id-sq-top { font-size: 9px; }
@@ -377,14 +397,10 @@ onMounted(loadData);
   .border-right-mobile { border-right: 0.5px solid var(--border) !important; padding-right: 5px; }
   .scent-info { padding-left: 2px; }
   .scent-title { font-size: 13px; }
-  /* Точечное изменение: Контейнер цен в мобилке теперь тоже сжимается */
   .price-container { width: calc(var(--p-cols) * 55px); }
   .price-section { border-right: none; }
   .p-col { padding: 0; font-size: 12px; border-right: 0.5px solid var(--border) !important; }
   .p-col.last { border-right: none !important; }
   .aura-text { font-size: 9px; letter-spacing: 2px; }
 }
-
-.custom-scroll::-webkit-scrollbar { width: 3px; }
-.custom-scroll::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 10px; }
 </style>
