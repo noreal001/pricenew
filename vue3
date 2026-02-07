@@ -8,6 +8,7 @@
           <h1 class="logo-text">BAHUR</h1>
           <div class="strip bottom"></div>
           <div class="logo-url">WWW.BAHUR.STORE</div>
+          
           <button @click="isDark = !isDark" class="theme-centered">{{ isDark ? '☀' : '☾' }}</button>
         </div>
       </header>
@@ -21,160 +22,187 @@
       </div>
 
       <div v-else>
-        <section class="dashboard">
-          <div class="dash-grid">
-            <div class="stat-card">
-              <label class="d-label">АРОМАТОВ</label>
-              <div class="v mono">{{ stats.total }}</div>
-            </div>
-            <div class="stat-card">
-              <label class="d-label">СРЕДНЯЯ ЦЕНА</label>
-              <div class="avg-list mono responsive-text">
-                <div v-if="showPrices.p50" class="avg-row">50г: <span class="val">{{ stats.avg50 }}₽</span></div>
-                <div v-if="showPrices.p500" class="avg-row">500г: <span class="val">{{ stats.avg500 }}₽</span></div>
-                <div v-if="showPrices.p1000" class="avg-row">1кг: <span class="val">{{ stats.avg1000 }}₽</span></div>
+        
+        <div class="dash-control-bar">
+           <button @click="showDash = !showDash" class="dash-icon-btn" title="Статистика">
+              <svg viewBox="0 0 24 24" class="dash-icon">
+                <path fill="currentColor" d="M10,20H14V4H10V20M4,20H8V12H4V20M16,9V20H20V9H16Z" />
+              </svg>
+           </button>
+        </div>
+
+        <transition name="slide-fade">
+          <section v-if="showDash" class="dashboard">
+            <div class="dash-grid">
+              <div class="stat-card">
+                <label class="d-label">АРОМАТОВ</label>
+                <div class="v mono">{{ stats.total }}</div>
               </div>
-            </div>
-            <div class="stat-card">
-              <label class="d-label">НА СКЛАДЕ</label>
-              <div class="stock-box-stacked">
-                <div class="v-small mono">{{ stats.availability }}%</div>
-                <div class="q-track-neon"><div class="q-fill-neon" :style="{ width: stats.availability + '%' }"></div></div>
+              <div class="stat-card">
+                <label class="d-label">СРЕДНЯЯ ЦЕНА</label>
+                <div class="avg-list mono responsive-text">
+                  <div v-if="showPrices.p50" class="avg-row">50г: <span class="val">{{ stats.avg50 }}₽</span></div>
+                  <div v-if="showPrices.p500" class="avg-row">500г: <span class="val">{{ stats.avg500 }}₽</span></div>
+                  <div v-if="showPrices.p1000" class="avg-row">1кг: <span class="val">{{ stats.avg1000 }}₽</span></div>
+                </div>
               </div>
-            </div>
-            <div class="stat-card">
-              <label class="d-label">КАЧЕСТВО %</label>
-              <div class="q-list">
-                <div v-for="q in ['TOP', 'Q1', 'Q2']" :key="q" class="q-row-stacked">
-                  <div class="q-meta">
-                      <span class="mono">{{ q }}</span>
-                      <span class="mono op-5">{{ stats.qualityPerc[q] }}%</span>
+              <div class="stat-card">
+                <label class="d-label">НА СКЛАДЕ</label>
+                <div class="stock-box-stacked">
+                  <div class="v-small mono">{{ stats.availability }}%</div>
+                  <div class="q-track-neon"><div class="q-fill-neon" :style="{ width: stats.availability + '%' }"></div></div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <label class="d-label">КАЧЕСТВО %</label>
+                <div class="q-list">
+                  <div v-for="q in ['TOP', 'Q1', 'Q2']" :key="q" class="q-row-stacked">
+                    <div class="q-meta">
+                        <span class="mono">{{ q }}</span>
+                        <span class="mono op-5">{{ stats.qualityPerc[q] }}%</span>
+                    </div>
+                    <div class="q-track-neon"><div class="q-fill-neon" :style="{ width: stats.qualityPerc[q] + '%' }"></div></div>
                   </div>
-                  <div class="q-track-neon"><div class="q-fill-neon" :style="{ width: stats.qualityPerc[q] + '%' }"></div></div>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </transition>
 
         <div class="table-frame">
           <div class="sticky-nav-group">
             
             <section class="controls-luxury relative-zone">
-              <div class="top-bar-controls">
+              
+              <div class="top-bar-controls-grid-4">
                 
-                <div class="switch-group" @click="toggleNew">
-                   <div :class="['minimal-switch', { 'active': isNewOnly }]">
-                     <div class="min-knob"></div>
-                   </div>
-                   <label class="ctrl-label-inline rus-font">НОВИНКИ</label>
+                <div class="control-item relative-zone">
+                   <button @click="toggleBrandMenu" :class="['main-ctrl-btn', { 'active': showBrandMenu || searchBrand }]">
+                      <span class="btn-txt-fixed rus-font">{{ brandLabel }}</span>
+                      <svg class="pill-arrow" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41 8.59L12 13.17L16.59 8.59L18 10L12 16L6 10L7.41 8.59Z"/></svg>
+                   </button>
+
+                   <transition name="pop">
+                      <div v-if="showBrandMenu" class="bahur-popup-menu list-mode">
+                         <div class="search-input-box">
+                            <input ref="brandInputRef" v-model="tempBrandInput" type="text" placeholder="Поиск бренда..." class="popup-input rus-font" />
+                         </div>
+                         <div class="brands-scroll-area">
+                            <div class="brands-list-vertical">
+                              <button @click="selectBrand('')" class="brand-row-btn rus-font">
+                                <div class="brand-left-group">
+                                  <svg class="mini-logo-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" /></svg>
+                                  <span>Все</span>
+                                </div>
+                                <svg v-if="searchBrand === ''" class="check-status" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
+                              </button>
+                              <button v-for="b in filteredBrandsDropdown" :key="b" @click="selectBrand(b)" class="brand-row-btn eng-font">
+                                <div class="brand-left-group">
+                                  <span class="brand-txt-truncate">{{ b }}</span>
+                                </div>
+                                <svg v-if="searchBrand === b" class="check-status" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
+                              </button>
+                              <div v-if="filteredBrandsDropdown.length === 0" class="no-results rus-font">Нет совпадений</div>
+                            </div>
+                         </div>
+                      </div>
+                   </transition>
                 </div>
 
-                <button @click="toggleFilterMenu" :class="['settings-btn', { 'active': showFilters }]">
-                  <template v-if="!showFilters">
-                    <svg class="btn-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.35 19.43,11.03L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11.03C4.53,11.35 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.95C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" /></svg>
-                    <span class="rus-font">ФИЛЬТР</span>
-                  </template>
-                  <template v-else>
-                    <svg class="btn-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
-                    <span class="rus-font">ЗАКРЫТЬ</span>
-                  </template>
-                </button>
+                <div class="control-item relative-zone">
+                   <button @click="toggleAromaMenu" :class="['main-ctrl-btn', { 'active': showAromaMenu || searchAroma }]">
+                      <span class="btn-txt-fixed rus-font">{{ aromaLabel }}</span>
+                      <svg class="pill-arrow" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41 8.59L12 13.17L16.59 8.59L18 10L12 16L6 10L7.41 8.59Z"/></svg>
+                   </button>
+
+                   <transition name="pop">
+                      <div v-if="showAromaMenu" class="bahur-popup-menu list-mode">
+                         <div class="search-input-box">
+                            <input ref="aromaInputRef" v-model="tempAromaInput" type="text" placeholder="Поиск аромата..." class="popup-input rus-font" />
+                         </div>
+                         <div class="brands-scroll-area">
+                            <div class="brands-list-vertical">
+                              <button @click="selectAroma('')" class="brand-row-btn rus-font">
+                                <div class="brand-left-group">
+                                  <svg class="mini-logo-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" /></svg>
+                                  <span>Все</span>
+                                </div>
+                                <svg v-if="searchAroma === ''" class="check-status" viewBox="0 0 24 24"><path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" /></svg>
+                              </button>
+                              <button v-for="(item, index) in aromaSuggestions" :key="index" @click="selectAroma(item.name)" class="brand-row-btn">
+                                <div class="brand-left-group">
+                                  <span class="aroma-sug-brand eng-font">{{ item.brand }}</span>
+                                  <span class="aroma-sug-name rus-font">{{ item.name }}</span>
+                                </div>
+                              </button>
+                              <div v-if="aromaSuggestions.length === 0 && tempAromaInput" class="no-results rus-font">Нет совпадений</div>
+                            </div>
+                         </div>
+                      </div>
+                   </transition>
+                </div>
+
+                <div class="control-item">
+                  <button @click="toggleNew" :class="['main-ctrl-btn', { 'active': isNewOnly }]">
+                    <span class="rus-font">Новинки</span>
+                  </button>
+                </div>
+
+                <div class="control-item relative-zone">
+                  <button @click="toggleFilterMenu" :class="['main-ctrl-btn', { 'active': showFilters }]">
+                    <span class="rus-font">{{ showFilters ? 'Закрыть' : 'Фильтр' }}</span>
+                    <svg class="pill-arrow" viewBox="0 0 24 24"><path fill="currentColor" d="M7.41 8.59L12 13.17L16.59 8.59L18 10L12 16L6 10L7.41 8.59Z"/></svg>
+                  </button>
+
+                   <transition name="pop">
+                    <div v-if="showFilters" class="bahur-popup-menu filter-mode">
+                      <div class="popup-section">
+                        <span class="popup-label rus-font">ПОЛ</span>
+                        <div class="segmented-control">
+                          <button v-for="g in genderOptions" :key="g.val" @click="activeGender = g.val" :class="['segment-btn', { active: activeGender === g.val }]"><span class="rus-font">{{ g.label }}</span></button>
+                        </div>
+                      </div>
+                      <div class="popup-section">
+                        <span class="popup-label rus-font">ФАБРИКА</span>
+                        <div class="segmented-control">
+                          <button v-for="f in factoryOptions" :key="f.val" @click="activeFactory = f.val" :class="['segment-btn', { active: activeFactory === f.val }]"><span class="eng-font">{{ f.label }}</span></button>
+                        </div>
+                      </div>
+                      <div class="popup-section">
+                        <span class="popup-label rus-font">КАЧЕСТВО</span>
+                        <div class="segmented-control">
+                          <button v-for="q in qualityOptions" :key="q.val" @click="activeQuality = q.val" :class="['segment-btn', { active: activeQuality === q.val }]"><span class="eng-font">{{ q.label }}</span></button>
+                        </div>
+                      </div>
+                      <div class="popup-section">
+                        <span class="popup-label rus-font">ЦЕНА</span>
+                        <div class="segmented-control">
+                          <button v-for="s in sortOptions" :key="s.val" @click="sortBy = s.val" :class="['segment-btn', { active: sortBy === s.val }]">
+                             <span v-if="s.val === 'id'" class="rus-font">ID</span>
+                             <span v-else class="arrows-horn"><b>₽</b>{{ s.val === 'asc' ? '▲' : '▼' }}</span>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="popup-section">
+                        <span class="popup-label rus-font">СТОЛБЦЫ</span>
+                        <div class="segmented-control">
+                          <button v-for="(val, key) in priceLabels" :key="key" @click="togglePrice(key)" :class="['segment-btn', { active: showPrices[key] }]"><span class="rus-font">{{ val }}</span></button>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
+
               </div>
 
-              <div v-if="showFilters || showSearchDropdown" class="click-overlay" @click="closeAllMenus"></div>
-
-              <transition name="pop">
-                <div v-if="showFilters" class="bahur-popup-menu filter-mode">
-                  
-                  <div class="popup-section">
-                    <span class="popup-label rus-font">ПОЛ</span>
-                    <div class="segmented-control">
-                      <button v-for="g in genderOptions" :key="g.val" 
-                              @click="activeGender = g.val" 
-                              :class="['segment-btn', { active: activeGender === g.val }]">
-                        <span class="rus-font">{{ g.label }}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="popup-section">
-                    <span class="popup-label rus-font">ФАБРИКА</span>
-                    <div class="segmented-control">
-                      <button v-for="f in factoryOptions" :key="f.val" 
-                              @click="activeFactory = f.val" 
-                              :class="['segment-btn', { active: activeFactory === f.val }]">
-                        <span class="eng-font">{{ f.label }}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="popup-section">
-                    <span class="popup-label rus-font">КАЧЕСТВО</span>
-                    <div class="segmented-control">
-                      <button v-for="q in qualityOptions" :key="q.val" 
-                              @click="activeQuality = q.val" 
-                              :class="['segment-btn', { active: activeQuality === q.val }]">
-                        <span class="eng-font">{{ q.label }}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="popup-section">
-                    <span class="popup-label rus-font">ЦЕНА</span>
-                    <div class="segmented-control">
-                      <button v-for="s in sortOptions" :key="s.val" 
-                              @click="sortBy = s.val" 
-                              :class="['segment-btn', { active: sortBy === s.val }]">
-                         <span class="rus-font" v-html="s.label"></span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="popup-section">
-                    <span class="popup-label rus-font">СТОЛБЦЫ</span>
-                    <div class="segmented-control">
-                      <button v-for="(val, key) in priceLabels" :key="key" 
-                              @click="togglePrice(key)" 
-                              :class="['segment-btn', { active: showPrices[key] }]">
-                        <span class="rus-font">{{ val }}</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </transition>
+              <div v-if="showFilters || showBrandMenu || showAromaMenu" class="click-overlay" @click="closeAllMenus"></div>
             </section>
 
             <div class="grid-row head no-click">
               <div class="cell id head-txt center">№</div>
-              <div class="cell name name-header relative-zone">
-                <div class="search-wrapper">
-                   <svg class="search-icon" viewBox="0 0 24 24"><path fill="currentColor" d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z"/></svg>
-                   <input v-model="search" type="text" placeholder="ПОИСК" class="header-search rus-font" @focus="openSearchDropdown" />
-                </div>
-
-                <transition name="pop">
-                  <div v-if="showSearchDropdown" class="bahur-popup-menu search-dropdown-mode">
-                    <div class="search-brands-label rus-font">БРЕНДЫ</div>
-                    <div class="brands-scroll-area">
-                      <div class="brands-list-vertical">
-                         <button v-for="b in filteredBrandsDropdown" :key="b" 
-                                @click="selectBrand(b)" 
-                                :class="['brand-row-btn eng-font', { 'active-row': isBrandSelected(b) }]">
-                          <span class="brand-txt-truncate">{{ b }}</span>
-                          <svg v-if="search === '' || search === b" class="check-icon" viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
-                          </svg>
-                        </button>
-                        <div v-if="filteredBrandsDropdown.length === 0" class="no-results rus-font">
-                          Нет совпадений
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </transition>
+              <div class="cell name name-header">
+                <span class="head-txt">АРОМАТЫ</span>
               </div>
-
               <div class="cell desk-only head-txt center">ПОЛ</div>
               <div class="cell desk-only head-txt center">ФАБРИКА</div>
               <div class="cell desk-only head-txt center">КАЧЕСТВО</div>
@@ -187,7 +215,9 @@
             </div>
           </div>
 
-          <div v-if="loading" class="loading-container"><div class="loading-line"></div></div>
+          <div v-if="loading" class="loading-container">
+             <div :class="['spiral-loader', loaderColor]"></div>
+          </div>
           
           <div v-else class="grid-table">
             <div v-for="(p, index) in sortedProducts" :key="p.id + '-' + index" 
@@ -197,7 +227,9 @@
               <div class="row-visual-layer">
                 <div class="cell id-zone-square center">
                   <div class="id-sq-top mono">{{ p.id }}</div>
-                  <div v-if="p.isNew" class="badge-new-square">NEW</div>
+                  
+                  <div v-if="p.isNew" class="badge-new-box desk-only-new">NEW</div>
+                  
                   <div :class="['lamp-sq', p.isOut ? 'red' : (p.isNew ? 'green' : 'standard')]"></div>
                 </div>
                 
@@ -209,6 +241,7 @@
                       <span class="m-square-matte">{{ getSex(p.gender) }}</span> 
                       <span class="m-square-matte">{{ p.factory }}</span> 
                       <span class="m-square-matte">{{ p.quality }}</span>
+                      <span v-if="p.isNew" class="m-square-matte new-mobile">NEW</span>
                     </div>
                   </div>
                 </div>
@@ -239,15 +272,26 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 
 const isDark = ref(true); 
 const loading = ref(true); 
+const loaderColor = ref('red'); // Default
 const errorMsg = ref(null);
 const products = ref([]); 
-const search = ref(''); 
+const showDash = ref(true);
+
+const searchBrand = ref(''); 
+const tempBrandInput = ref('');
+const showBrandMenu = ref(false);
+const brandInputRef = ref(null);
+
+const searchAroma = ref('');
+const tempAromaInput = ref('');
+const showAromaMenu = ref(false);
+const aromaInputRef = ref(null);
+
 const showFilters = ref(false);
-const showSearchDropdown = ref(false);
 
 const isNewOnly = ref(false);
 const activeGender = ref('ВСЕ'); 
@@ -261,32 +305,10 @@ const showPrices = ref({ p50: true, p500: true, p1000: true });
 const priceLabels = { p50: '50Г', p500: '500Г', p1000: '1КГ' };
 const activePriceCount = computed(() => Object.values(showPrices.value).filter(Boolean).length);
 
-const genderOptions = [
-  { label: 'ВСЕ', val: 'ВСЕ' },
-  { label: 'МУЖ', val: 'm' },
-  { label: 'ЖЕН', val: 'w' },
-  { label: 'УНИ', val: 'y' }
-];
-
-const factoryOptions = [
-  { label: 'ВСЕ', val: 'ВСЕ' },
-  { label: 'LUZI', val: 'LUZI' },
-  { label: 'EPS', val: 'EPS' },
-  { label: 'SELUZ', val: 'SELUZ' }
-];
-
-const qualityOptions = [
-  { label: 'ВСЕ', val: 'ВСЕ' },
-  { label: 'TOP', val: 'TOP' },
-  { label: 'Q1', val: 'Q1' },
-  { label: 'Q2', val: 'Q2' }
-];
-
-const sortOptions = [
-  { label: 'ID', val: 'id' },
-  { label: '₽ ▲', val: 'asc' },
-  { label: '₽ ▼', val: 'desc' }
-];
+const genderOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'МУЖ', val: 'm' }, { label: 'ЖЕН', val: 'w' }, { label: 'УНИ', val: 'y' }];
+const factoryOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'LUZI', val: 'LUZI' }, { label: 'EPS', val: 'EPS' }, { label: 'SELUZ', val: 'SELUZ' }];
+const qualityOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'TOP', val: 'TOP' }, { label: 'Q1', val: 'Q1' }, { label: 'Q2', val: 'Q2' }];
+const sortOptions = [{ label: 'ID', val: 'id' }, { label: 'asc', val: 'asc' }, { label: 'desc', val: 'desc' }];
 
 const toggleNew = () => isNewOnly.value = !isNewOnly.value;
 
@@ -297,78 +319,68 @@ const togglePrice = (key) => {
 }
 
 const toggleFilterMenu = () => {
-  showSearchDropdown.value = false;
-  showFilters.value = !showFilters.value;
+  if (showFilters.value) { closeAllMenus(); return; }
+  closeAllMenus();
+  showFilters.value = true;
 }
 
-const openSearchDropdown = () => {
-  showFilters.value = false;
-  showSearchDropdown.value = true;
+const toggleBrandMenu = () => {
+  if (showBrandMenu.value) { closeAllMenus(); return; }
+  closeAllMenus();
+  showBrandMenu.value = true;
+  tempBrandInput.value = '';
+  nextTick(() => brandInputRef.value?.focus());
+}
+
+const toggleAromaMenu = () => {
+  if (showAromaMenu.value) { closeAllMenus(); return; }
+  closeAllMenus();
+  showAromaMenu.value = true;
+  tempAromaInput.value = '';
+  nextTick(() => aromaInputRef.value?.focus());
 }
 
 const closeAllMenus = () => {
   showFilters.value = false;
-  showSearchDropdown.value = false;
+  showBrandMenu.value = false;
+  showAromaMenu.value = false;
 }
 
-const selectBrand = (brandName) => {
-  search.value = brandName;
-  // Держим меню открытым или закрываем по желанию. 
-  // Обычно при выборе фильтра закрывают.
-  showSearchDropdown.value = false; 
-}
+const selectBrand = (b) => { searchBrand.value = b; closeAllMenus(); }
+const selectAroma = (a) => { searchAroma.value = a; closeAllMenus(); }
 
-const isBrandSelected = (b) => {
-  return search.value === b;
-}
+const brandLabel = computed(() => searchBrand.value ? searchBrand.value : 'Бренды');
+const aromaLabel = computed(() => searchAroma.value ? searchAroma.value : 'Ароматы');
 
 const gridStyle = computed(() => ({ gridTemplateColumns: `repeat(${activePriceCount.value}, 1fr)` }));
 
-// Safe CSV Parser
 const parseCSV = (data) => {
   try {
     const rows = data.split(/\r?\n/).filter(line => line.trim());
     return rows.map((row, idx) => {
       const col = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(c => c.replace(/^"|"$/g, '').trim());
       if (!col[0] || isNaN(parseInt(col[0])) || !col[2]) return null;
-      
       let g = col[4] ? col[4].toLowerCase().trim() : '';
       let fG = (g === 'm' || g === 'м' || g.includes('муж')) ? 'm' : (g === 'w' || g === 'ж' || g.includes('жен')) ? 'w' : (g === 'y' || g === 'у' || g.includes('уни')) ? 'y' : '';
-      
       const statusCol = col[10] ? col[10].trim() : '';
       const rawNote = (col[11] || '').toUpperCase();
       const brand = col[2] || '';
       const name = col[3] || '';
-      
       const hasPlus = statusCol.includes('+'); 
       const hasMinus = statusCol.includes('-'); 
       const isNew = hasPlus || statusCol.toUpperCase().includes('NEW') || rawNote.includes('NEW') || brand.toUpperCase().includes('NEW') || name.toUpperCase().includes('NEW');
       const isOut = hasMinus;
-
-      return { 
-        id: col[0], 
-        link: col[1] || '', 
-        brand: brand, 
-        name: name, 
-        gender: fG, 
-        factory: col[5] || '', 
-        quality: col[6] || '', 
-        p50: parseInt(col[7]) || 0, 
-        p500: parseInt(col[8]) || 0, 
-        p1000: parseInt(col[9]) || 0, 
-        status: statusCol,
-        isOut: isOut,
-        isNew: isNew
-      }
+      return { id: col[0], link: col[1] || '', brand: brand, name: name, gender: fG, factory: col[5] || '', quality: col[6] || '', p50: parseInt(col[7]) || 0, p500: parseInt(col[8]) || 0, p1000: parseInt(col[9]) || 0, status: statusCol, isOut: isOut, isNew: isNew }
     }).filter(p => p !== null);
-  } catch(err) {
-    console.error("CSV Parse Error", err);
-    return [];
-  }
+  } catch(err) { console.error("CSV Parse Error", err); return []; }
 }
 
 const loadData = async () => {
   loading.value = true;
+  // Random spiral color
+  const colors = ['red', 'blue', 'purple'];
+  loaderColor.value = colors[Math.floor(Math.random() * colors.length)];
+  
   errorMsg.value = null;
   try {
     const res = await fetch('https://docs.google.com/spreadsheets/d/e/2PACX-1vTtT4zLEY49maKt0VxanZWA2ORKO1h39Mc5wB-XcZclDTmWfroFxQNAPxomg3x0-w/pub?gid=1234145733&single=true&output=csv');
@@ -377,12 +389,7 @@ const loadData = async () => {
     products.value = parseCSV(txt);
     if (products.value.length === 0) throw new Error('Данные пусты или ошибка формата');
     startAutoHighlight();
-  } catch (e) { 
-    console.error(e); 
-    errorMsg.value = "Не удалось загрузить прайс. Проверьте интернет.";
-  } finally {
-    setTimeout(() => loading.value = false, 500);
-  }
+  } catch (e) { console.error(e); errorMsg.value = "Не удалось загрузить прайс. Проверьте интернет."; } finally { setTimeout(() => loading.value = false, 500); }
 }
 
 const startAutoHighlight = () => {
@@ -391,10 +398,7 @@ const startAutoHighlight = () => {
     if (sortedProducts.value.length > 0) {
       const randomIdx = Math.floor(Math.random() * sortedProducts.value.length);
       const product = sortedProducts.value[randomIdx];
-      if (product) {
-         autoHighlightId.value = product.id;
-         setTimeout(() => { autoHighlightId.value = null; }, 2000);
-      }
+      if (product) { autoHighlightId.value = product.id; setTimeout(() => { autoHighlightId.value = null; }, 2000); }
     }
   }, 5000);
 }
@@ -402,28 +406,33 @@ const startAutoHighlight = () => {
 const uniqueBrands = computed(() => {
   const brands = new Set();
   products.value.forEach(p => { if(p.brand) brands.add(p.brand); });
-  // Sorting Alphabetically
   return Array.from(brands).sort();
 });
 
-// Фильтрация списка в выпадающем меню (поисковая строка фильтрует список брендов)
 const filteredBrandsDropdown = computed(() => {
-  const s = search.value.toLowerCase();
-  // Если поиск пустой, показываем все бренды. 
-  // Если введен текст, фильтруем бренды, начинающиеся с этого текста
+  const s = tempBrandInput.value.toLowerCase(); 
   if (!s) return uniqueBrands.value;
   return uniqueBrands.value.filter(b => b.toLowerCase().includes(s));
 });
 
+const aromaSuggestions = computed(() => {
+  if (!tempAromaInput.value) return [];
+  const s = tempAromaInput.value.toLowerCase();
+  return products.value
+    .filter(p => p.brand.toLowerCase().includes(s) || p.name.toLowerCase().includes(s))
+    .map(p => ({ brand: p.brand, name: p.name }))
+    .slice(0, 20);
+});
+
 const filteredProducts = computed(() => {
   return products.value.filter(p => {
-    const s = search.value.toLowerCase();
-    const matchesSearch = p.name.toLowerCase().includes(s) || p.brand.toLowerCase().includes(s);
+    const matchesBrand = !searchBrand.value || p.brand === searchBrand.value;
+    const matchesAroma = !searchAroma.value || p.name === searchAroma.value;
     const matchesGender = activeGender.value === 'ВСЕ' || p.gender === activeGender.value;
     const matchesQuality = activeQuality.value === 'ВСЕ' || p.quality === activeQuality.value;
     const matchesFactory = activeFactory.value === 'ВСЕ' || p.factory.toUpperCase().includes(activeFactory.value);
     const matchesNew = !isNewOnly.value || p.isNew;
-    return matchesSearch && matchesGender && matchesQuality && matchesFactory && matchesNew;
+    return matchesBrand && matchesAroma && matchesGender && matchesQuality && matchesFactory && matchesNew;
   });
 })
 
@@ -454,82 +463,57 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 </script>
 
 <style scoped>
-/* 1. ПОДКЛЮЧЕНИЕ ШРИФТОВ */
+/* FONTS */
 @font-face {
     font-family: 'Kollektif';
     src: local('Kollektif'), url('https://fonts.cdnfonts.com/s/16912/Kollektif.woff') format('woff');
     font-weight: normal;
     font-style: normal;
 }
-
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
-/* Вспомогательные классы для шрифтов */
 .eng-font { font-family: 'Kollektif', 'Segoe UI', sans-serif; }
 .rus-font { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
 .bahur-terminal {
   --bg: #000; --text: #fff; --border: rgba(255,255,255,0.08); --dim: #555; --green: #00ff88; --red: #ff3b30;
-  --panel-bg: rgba(10,10,10,0.95); --aura-bg: rgba(0,0,0,0.4); --aura-text: #fff;
-  --track-bg: rgba(255,255,255,0.15); 
+  --panel-bg: rgba(0,0,0,0.95); --aura-bg: rgba(0,0,0,0.4); --aura-text: #fff;
   --sticky-bg: rgba(0,0,0,0.9); 
-  /* BUTTON VARIABLES */
-  --btn-idle: transparent;
-  --btn-border: rgba(255,255,255,0.15);
-  --btn-active: #fff;
-  --btn-txt-act: #000;
   
-  /* Segmented Controls Colors (Dark Mode) */
-  --seg-bg: #1c1c1e;
-  --seg-active: #ffffff;
-  --seg-txt: #8e8e93;
-  --seg-txt-active: #000000;
+  --seg-bg: #1c1c1e; --seg-active: #ffffff; --seg-txt: #8e8e93; --seg-txt-active: #000000;
+  --btn-ctrl-bg: rgba(255,255,255,0.05);
   
   min-height: 100vh; background: var(--bg); color: var(--text); 
-  font-family: 'Helvetica Neue', sans-serif;
-  transition: 0.1s;
+  font-family: 'Helvetica Neue', sans-serif; transition: 0.1s;
 }
 
 .noir { 
   --bg: #000; --text: #fff; --aura-bg: rgba(0,0,0,0.4); 
-  --track-bg: rgba(255,255,255,0.2); --sticky-bg: rgba(0,0,0,0.9);
-  --btn-idle: transparent;
-  --btn-active: #fff;
-  
-  --seg-bg: #1c1c1e;
-  --seg-active: #fff;
-  --seg-txt: #8e8e93;
-  --seg-txt-active: #000;
+  --sticky-bg: rgba(0,0,0,0.9);
+  --panel-bg: rgba(0,0,0,0.95);
+  --seg-bg: #1c1c1e; --seg-active: #fff; --seg-txt: #8e8e93; --seg-txt-active: #000;
+  --btn-ctrl-bg: rgba(255,255,255,0.08);
 }
 
 .bahur-terminal:not(.noir) { 
-  --bg: #f2f2f7; 
+  --bg: #ffffff; /* PURE WHITE */
   --text: #000; --border: rgba(0,0,0,0.1); --dim: #888; 
-  --panel-bg: rgba(255,255,255,0.95); 
+  --panel-bg: rgba(255,255,255,0.98); 
   --aura-bg: rgba(255,255,255,0.5); --aura-text: #000;
-  --track-bg: rgba(0,0,0,0.1); 
-  --sticky-bg: rgba(242,242,247,0.9);
-  --btn-idle: transparent;
-  --btn-border: rgba(0,0,0,0.15);
-  --btn-active: #000;
-  --btn-txt-act: #fff;
-  
-  /* Segmented Controls Colors (Light Mode) */
-  --seg-bg: #e5e5ea;
-  --seg-active: #000000;
-  --seg-txt: #8e8e93;
-  --seg-txt-active: #ffffff;
+  --sticky-bg: rgba(255,255,255,0.95);
+  --seg-bg: #e5e5ea; --seg-active: #000000; --seg-txt: #8e8e93; --seg-txt-active: #ffffff;
+  --btn-ctrl-bg: #f2f2f7; 
 }
 
 .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
 
-/* ERROR MESSAGE STYLE */
+/* ERROR */
 .error-zone { display: flex; justify-content: center; align-items: center; height: 50vh; }
 .error-box { text-align: center; border: 1px solid var(--red); padding: 30px; border-radius: 8px; background: rgba(255,59,48,0.1); }
 .retry-btn { margin-top: 15px; padding: 10px 20px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer; }
 
-/* STICKY NAV GROUP */
+/* STICKY NAV */
 .sticky-nav-group {
   position: sticky; top: 0; z-index: 500;
   background: var(--sticky-bg);
@@ -537,174 +521,117 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
   border-bottom: 1px solid var(--text);
   margin-bottom: 0;
 }
-.top-bar-controls { border-bottom: none !important; }
 
-/* CONTROLS */
-.relative-zone { position: relative; z-index: 501; }
-.top-bar-controls {
-  display: flex; justify-content: space-between; align-items: center; 
-  padding: 10px 0; border-bottom: 0.5px solid var(--border);
+/* 4-COLUMN CONTROLS LAYOUT */
+.controls-luxury { padding: 12px 0; border-bottom: 0.5px solid var(--border); }
+.top-bar-controls-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px; /* WIDE GAP ON DESKTOP */
 }
-.switch-group { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.ctrl-label-inline { font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text); opacity: 0.9; }
+.control-item { display: flex; justify-content: center; align-items: center; width: 100%; }
 
-/* --- MINIMALIST SWITCH --- */
-.minimal-switch {
-  width: 28px; height: 14px;
-  border: 1px solid var(--text);
-  border-radius: 10px;
-  position: relative;
-  transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  background: transparent;
+/* MAIN CONTROL BUTTONS */
+.main-ctrl-btn {
+  width: 100%;
+  background: var(--btn-ctrl-bg);
+  border: none;
+  color: var(--text);
+  padding: 10px 0;
+  border-radius: 30px; /* PILL SHAPE */
+  font-size: 10px; /* Small uniform size */
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 4px; 
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  text-transform: none; 
 }
-.min-knob {
-  width: 8px; height: 8px;
-  background: var(--text);
-  border-radius: 50%;
-  position: absolute;
-  top: 2px; left: 3px;
-  transition: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+.btn-txt-fixed {
+  max-width: 120px; 
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.minimal-switch.active { border-color: var(--green); }
-.minimal-switch.active .min-knob { background: var(--green); transform: translateX(12px); box-shadow: 0 0 5px var(--green); }
+.main-ctrl-btn:hover { background: rgba(125,125,125,0.15); }
+.main-ctrl-btn.active { background: var(--text); color: var(--bg); }
+.pill-arrow { width: 10px; height: 10px; opacity: 0.8; } 
 
-.settings-btn {
-  display: flex; align-items: center; gap: 8px;
-  background: none; border: none; color: var(--text);
-  font-family: 'Kollektif', sans-serif;
-  font-size: 12px; font-weight: 700; letter-spacing: 1px; cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 6px;
-  transition: 0.2s;
-}
-.settings-btn.active {
-    background: var(--seg-bg);
-}
-.btn-icon { width: 14px; height: 14px; opacity: 0.8; }
+/* --- POPUPS --- */
+.relative-zone { position: relative; }
 .click-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 800; background: transparent; }
 
-/* --- POPUP COMMON STYLE --- */
 .bahur-popup-menu {
-  position: absolute; top: 60px; right: 0; 
-  background: var(--panel-bg); backdrop-filter: blur(30px);
+  position: absolute; top: 50px; 
+  background: var(--panel-bg); 
   border: 0.5px solid var(--border); 
   border-radius: 16px;
-  padding: 15px; /* Compact Padding */
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  display: flex; flex-direction: column; gap: 12px;
+  padding: 15px; 
+  box-shadow: 0 30px 60px rgba(0,0,0,0.95);
+  display: flex; flex-direction: column; gap: 10px;
   z-index: 999;
 }
 
-/* FILTER MODE SPECIFIC (Miniature) */
-.bahur-popup-menu.filter-mode { width: 250px; }
-
-/* DROPDOWN SEARCH SPECIFIC (Even smaller, overflow handled) */
-.bahur-popup-menu.search-dropdown-mode { 
-  top: 100%; left: -1px; 
-  width: 220px; 
-  border-radius: 12px;
-  margin-top: 10px;
-  padding: 10px;
+/* List Mode Popup (Brands & Aromas) */
+.bahur-popup-menu.list-mode {
+  /* Default Desktop Center */
+  left: 50%; transform: translateX(-50%);
+  width: 240px !important; max-width: 240px !important;
 }
 
-.popup-section { margin-bottom: 5px; }
-.popup-label { 
-  display: block; font-size: 8px; font-weight: 700; color: var(--dim); 
-  margin-bottom: 5px; letter-spacing: 1px; margin-left: 2px;
+/* Filter Mode Popup */
+.bahur-popup-menu.filter-mode {
+  right: 0; width: 220px; 
 }
 
-/* --- APPLE STYLE SEGMENTED CONTROL --- */
-.segmented-control {
-    display: flex;
-    background: var(--seg-bg);
-    padding: 2px;
-    border-radius: 6px;
-    gap: 0;
+/* Popup Content */
+.popup-input {
+  width: 100%; background: var(--seg-bg); border: none;
+  padding: 10px; border-radius: 8px; color: var(--text);
+  font-size: 13px; outline: none; margin-bottom: 5px;
+  box-sizing: border-box; 
 }
+.popup-input::placeholder { opacity: 0.5; }
+.search-input-box { width: 100%; }
 
-.segment-btn {
-    flex: 1;
-    background: transparent;
-    border: none;
-    color: var(--seg-txt);
-    padding: 4px 0; /* Compact padding */
-    font-size: 10px;
-    font-weight: 600;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-}
-
-.segment-btn.active {
-    background: var(--seg-active);
-    color: var(--seg-txt-active);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    font-weight: 700;
-}
-
-/* --- SEARCH STYLES IN HEADER --- */
-.search-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
-.search-icon { width: 15px; height: 15px; color: var(--dim); margin-right: 10px; }
-.header-search { 
-  width: 100%; background: none; border: none; color: var(--text); 
-  font-family: 'Helvetica Neue', sans-serif; outline: none; 
-  text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; font-size: 11px;
-}
-.header-search::placeholder { opacity: 0.5; color: var(--text); letter-spacing: 1.5px; font-family: 'Helvetica Neue'; }
-
-/* Dropdown Content */
-.search-brands-label { font-size: 9px; color: var(--dim); font-weight: 700; margin-bottom: 5px; letter-spacing: 1px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
-
-.brands-scroll-area {
-    max-height: 250px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--dim) transparent;
-}
-.brands-list-vertical { display: flex; flex-direction: column; gap: 2px; }
+.brands-scroll-area { max-height: 280px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+.brands-list-vertical { display: flex; flex-direction: column; gap: 4px; }
 
 .brand-row-btn {
-    display: flex; justify-content: space-between; align-items: center;
-    text-align: left;
-    background: transparent;
-    color: var(--text);
-    border: none;
-    padding: 6px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    cursor: pointer;
-    transition: 0.2s;
-    text-transform: uppercase;
-    font-weight: 600;
-    opacity: 0.6;
-    border-bottom: 1px solid rgba(255,255,255,0.03);
+  display: flex; justify-content: space-between; align-items: center;
+  background: transparent; color: var(--text); border: none;
+  padding: 8px 10px; border-radius: 6px; cursor: pointer;
+  font-size: 11px; text-transform: capitalize; text-align: left;
+  transition: 0.2s; opacity: 0.8;
 }
-.brand-txt-truncate { 
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; 
+.brand-row-btn:hover { background: var(--seg-bg); opacity: 1; }
+.brand-left-group { display: flex; align-items: center; gap: 8px; overflow: hidden; }
+.brand-txt-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
+.aroma-txt-truncate { white-space: normal; overflow: visible; max-width: 180px; line-height: 1.2; text-align: left; }
+.aroma-sug-brand { font-weight: 900; opacity: 0.5; margin-right: 5px; font-size: 10px; }
+.aroma-sug-name { font-weight: 700; font-size: 11px; }
+
+.check-status { width: 14px; height: 14px; color: var(--text); } 
+.no-results { text-align: center; color: var(--dim); font-size: 11px; padding: 10px; }
+
+/* Filter Sections */
+.popup-section { margin-bottom: 5px; }
+.popup-label { display: block; font-size: 8px; font-weight: 700; color: var(--dim); margin-bottom: 4px; letter-spacing: 1px; }
+
+/* Segmented Controls */
+.segmented-control { display: flex; background: var(--seg-bg); padding: 3px; border-radius: 8px; }
+.segment-btn {
+  flex: 1; background: transparent; border: none; color: var(--seg-txt);
+  padding: 5px 0; font-size: 10px; font-weight: 600; border-radius: 6px;
+  cursor: pointer; transition: 0.2s;
 }
-
-.brand-row-btn:hover { opacity: 1; background: var(--seg-bg); }
-.brand-row-btn.active-row { opacity: 1; font-weight: 800; }
-
-.check-icon { width: 12px; height: 12px; color: var(--green); }
-
-.no-results { width: 100%; text-align: center; color: var(--dim); font-size: 12px; padding: 10px; }
+.segment-btn.active { background: var(--seg-active); color: var(--seg-txt-active); box-shadow: 0 2px 5px rgba(0,0,0,0.1); font-weight: 700; }
+.arrows-horn { font-size: 10px; letter-spacing: 0; display: inline-flex; gap: 2px; } 
 
 .pop-enter-active, .pop-leave-active { transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-.pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(-5px) scale(0.98); }
+.pop-enter-from, .pop-leave-to { opacity: 0; transform: translateY(-10px) scale(0.95); }
 
-/* --- EXISTING TABLE STYLES --- */
-.badge-new-square { 
-  display: inline-block; background: var(--text); color: var(--bg); 
-  font-size: 7px; font-weight: 900; padding: 1px 3px; margin-bottom: 4px; line-height: 1;
-}
-
-.loading-container { display: flex; justify-content: center; align-items: center; height: 300px; }
-.loading-line { width: 0; height: 1px; background: var(--text); animation: load 1.5s infinite ease-in-out; }
-@keyframes load { 0% { width: 0; opacity: 0; } 50% { width: 200px; opacity: 1; } 100% { width: 0; opacity: 0; } }
-
-.header-manifest { text-align: center; margin-bottom: 30px; }
+/* --- HEADER & STATS --- */
+.header-manifest { text-align: center; margin-bottom: 30px; position: relative; }
 .logo-strip-box { display: inline-block; position: relative; padding: 12px 60px; }
 .strip { height: 0.5px; background: var(--text); width: 100%; position: absolute; left: 0; opacity: 0.3; }
 .strip.top { top: 0; } .strip.bottom { bottom: 0; }
@@ -712,7 +639,21 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .logo-url { font-size: 9px; color: var(--dim); font-weight: 700; letter-spacing: 2px; margin-top: 5px; font-family: 'Kollektif', sans-serif;}
 .theme-centered { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: none; border: 0.5px solid var(--border); color: var(--text); padding: 4px 8px; cursor: pointer; border-radius: 2px; font-size: 12px; }
 
-.dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 30px; }
+/* Dashboard Control Bar (Left above Dash) */
+.dash-control-bar { padding-left: 2px; margin-bottom: 10px; display: flex; justify-content: flex-start; }
+.dash-icon-btn {
+  background: transparent; border: none; color: var(--text);
+  width: 24px; height: 24px; cursor: pointer; opacity: 0.6;
+  display: flex; align-items: center; justify-content: center; transition: 0.2s;
+}
+.dash-icon-btn:hover { opacity: 1; }
+.dash-icon { width: 18px; height: 18px; }
+
+.slide-fade-enter-active, .slide-fade-leave-active { transition: all 0.3s ease; max-height: 500px; opacity: 1; overflow: hidden; }
+.slide-fade-enter-from, .slide-fade-leave-to { max-height: 0; opacity: 0; margin-bottom: 0; }
+
+.dashboard { margin-bottom: 20px; }
+.dash-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 .stat-card { border: 0.5px solid var(--border); padding: 18px; background: var(--bg); border-left: 3.5px solid var(--text); }
 .d-label { display: block; font-size: 8px; font-weight: 700; color: var(--dim); margin-bottom: 12px; letter-spacing: 1.5px; text-transform: uppercase; font-family: 'Helvetica Neue', sans-serif; }
 .stat-card .v { font-size: 24px; font-weight: 700; }
@@ -727,8 +668,11 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .v-small { font-size: 16px; font-weight: 700; margin-bottom: 5px; }
 
 .grid-table { display: flex; flex-direction: column; width: 100%; min-width: 1000px; border: 0.5px solid var(--border); border-top: none; }
+
+/* STRICT SYMMETRY GRID DEFINITION */
 .grid-row { 
   display: grid; 
+  /* Fixed columns to ensure alignment */
   grid-template-columns: 60px 1fr 80px 120px 120px calc(var(--p-cols) * 80px); 
   align-items: center; 
   background: var(--bg); border-bottom: 0.5px solid var(--border); position: relative; overflow: hidden; 
@@ -743,6 +687,30 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .clickable-row { cursor: pointer; transition: 0.3s; }
 .out { opacity: 0.5; }
 
+/* NEW BADGE LOGIC */
+.badge-new-box {
+  background: var(--text); color: var(--bg);
+  font-size: 8px; font-weight: 800;
+  padding: 1px 3px; border-radius: 2px;
+  margin: 2px auto 0;
+  display: none; /* Hidden by default */
+}
+.desk-only-new { display: inline-block; } /* Show on desktop */
+
+/* SPINNER */
+.loading-container { display: flex; justify-content: center; align-items: center; height: 300px; }
+.spiral-loader {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  animation: spin 1s linear infinite;
+}
+.spiral-loader.red { border-top-color: #ff3b30; border-right-color: rgba(255,59,48,0.5); }
+.spiral-loader.blue { border-top-color: #007aff; border-right-color: rgba(0,122,255,0.5); }
+.spiral-loader.purple { border-top-color: #bf5af2; border-right-color: rgba(191,90,242,0.5); }
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
 /* AURA EFFECT */
 .row-aura-overlay {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -750,22 +718,11 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 10;
   pointer-events: none; 
 }
-.clickable-row:hover .row-aura-overlay, 
-.clickable-row.simulated-hover .row-aura-overlay {
-  opacity: 1; backdrop-filter: blur(8px); background: var(--aura-bg);
-}
-.clickable-row:active .row-aura-overlay {
-  opacity: 0 !important; backdrop-filter: none !important;
-}
+.clickable-row:hover .row-aura-overlay, .clickable-row.simulated-hover .row-aura-overlay { opacity: 1; backdrop-filter: blur(8px); background: var(--aura-bg); }
+.clickable-row:active .row-aura-overlay { opacity: 0 !important; backdrop-filter: none !important; }
 
-.aura-text {
-  font-size: 11px; font-weight: 900; letter-spacing: 5px; color: var(--aura-text);
-  transform: translateY(15px); opacity: 0; transition: 0.5s; font-family: 'Kollektif', sans-serif;
-}
-.clickable-row:hover .aura-text,
-.clickable-row.simulated-hover .aura-text {
-  opacity: 1; transform: translateY(0);
-}
+.aura-text { font-size: 11px; font-weight: 900; letter-spacing: 5px; color: var(--aura-text); transform: translateY(15px); opacity: 0; transition: 0.5s; font-family: 'Kollektif', sans-serif; }
+.clickable-row:hover .aura-text, .clickable-row.simulated-hover .aura-text { opacity: 1; transform: translateY(0); }
 .clickable-row:active .aura-text { opacity: 0 !important; }
 
 .badge-square-matte { font-size: 9px; font-weight: 700; border: 0.5px solid var(--border); padding: 5px 12px; letter-spacing: 1px; text-transform: uppercase; margin: 0 auto; color: var(--text); opacity: 0.8; font-family: 'Kollektif', sans-serif;}
@@ -781,7 +738,8 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .scent-info { width: 100%; padding-left: 10px; }
 .brand-code { font-size: 10px; font-weight: 700; opacity: 0.5; display: block; text-transform: uppercase; letter-spacing: 1px; }
 .scent-title { font-size: 17px; font-weight: 500; line-height: 1.2; letter-spacing: 0.5px; }
-.mobile-only-meta { display: none; margin-top: 8px; gap: 5px; }
+.mobile-only-meta { display: none; margin-top: 8px; gap: 5px; align-items: center; }
+.new-mobile { display: block; background: var(--text); color: var(--bg); border: none; font-weight: 900; }
 
 .price-container { display: flex; flex-direction: column; height: 100%; width: 100%; }
 .price-section { display: grid; height: 100%; width: 100%; align-items: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -795,6 +753,7 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
   .cell { border-right: none; }
   .desk-only { display: none; }
   .mobile-only-meta { display: flex; }
+  /* EXACT MATCH for Mobile */
   .grid-row { grid-template-columns: 35px 1fr calc(var(--p-cols) * 55px); border-bottom: 0.5px solid var(--border); }
   .id-zone-square { border-right: none; padding-left: 2px !important; align-items: flex-start; }
   .id-sq-top { font-size: 9px; }
@@ -807,5 +766,17 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
   .p-col { padding: 0; font-size: 12px; border-right: 0.5px solid var(--border) !important; }
   .p-col.last { border-right: none !important; }
   .aura-text { font-size: 9px; letter-spacing: 2px; }
+  
+  /* Mobile controls adjust */
+  .top-bar-controls-grid-4 { gap: 5px; }
+  .main-ctrl-btn { font-size: 9px; padding: 6px 0; }
+  .btn-txt-fixed { max-width: 65px; }
+  .desk-only-new { display: none; } /* Hide ID New Badge on mobile */
+  
+  /* Popup Mobile Alignment Fix */
+  .bahur-popup-menu.list-mode {
+    left: 0 !important; right: 0 !important; margin: auto !important; transform: none !important;
+    width: 220px !important;
+  }
 }
 </style>
