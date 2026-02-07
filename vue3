@@ -105,22 +105,25 @@
           </div>
 
           <div v-for="p in sortedProducts" :key="p.id" 
-               :class="['grid-row', 'clickable-row', { 'out': p.status === '-' }]"
+               :class="['grid-row', 'clickable-row', { 'out': p.isOut }]"
                @click="p.link && p.link.length > 5 ? open(p.link) : null">
             
             <div class="row-visual-layer">
               <div class="cell id-zone-square center">
                 <div class="id-sq-top mono">{{ p.id }}</div>
-                <div :class="['lamp-sq', p.status === '-' ? 'red' : 'green']"></div>
+                
+                <div v-if="p.isNew" class="badge-new-square">NEW</div>
+                
+                <div :class="['lamp-sq', p.isOut ? 'red' : (p.isNew ? 'green' : 'standard')]"></div>
               </div>
               
               <div class="cell name border-right-mobile">
                 <div class="scent-info">
                   <span class="brand-code">
                     {{ p.brand }} 
-                    <span v-if="p.isNew" class="new-tag-inline">NEW</span>
                   </span>
                   <span class="scent-title">{{ p.name }}</span>
+                  
                   <div class="mobile-only-meta">
                     <span class="m-square-matte">{{ getSex(p.gender) }}</span> 
                     <span class="m-square-matte">{{ p.factory }}</span> 
@@ -185,14 +188,20 @@ const parseCSV = (data) => {
     let g = col[4] ? col[4].toLowerCase().trim() : '';
     let fG = (g === 'm' || g === 'м' || g.includes('муж')) ? 'm' : (g === 'w' || g === 'ж' || g.includes('жен')) ? 'w' : (g === 'y' || g === 'у' || g.includes('уни')) ? 'y' : '';
     
-    // Точечное улучшение: ищем NEW в статусе (11 колонка) и примечании (12 колонка)
-    const rawStatus = (col[10] || '').toUpperCase();
+    // ЛОГИКА 11 КОЛОНКИ
+    const statusCol = col[10] ? col[10].trim() : '';
     const rawNote = (col[11] || '').toUpperCase();
     const brand = col[2] || '';
     const name = col[3] || '';
     
-    // Логика определения новинки: NEW в любом из текстовых полей или в примечании
-    const isNew = rawStatus.includes('NEW') || rawNote.includes('NEW') || brand.toUpperCase().includes('NEW') || name.toUpperCase().includes('NEW') || rawStatus.includes('НОВ');
+    const hasPlus = statusCol.includes('+'); 
+    const hasMinus = statusCol.includes('-'); 
+
+    // Определение новинки
+    const isNew = hasPlus || statusCol.toUpperCase().includes('NEW') || rawNote.includes('NEW') || brand.toUpperCase().includes('NEW') || name.toUpperCase().includes('NEW');
+    
+    // Определение отсутствия
+    const isOut = hasMinus;
 
     return { 
       id: col[0], 
@@ -205,7 +214,8 @@ const parseCSV = (data) => {
       p50: parseInt(col[7]) || 0, 
       p500: parseInt(col[8]) || 0, 
       p1000: parseInt(col[9]) || 0, 
-      status: col[10] ? col[10].trim() : '',
+      status: statusCol,
+      isOut: isOut,
       isNew: isNew
     }
   }).filter(p => p !== null);
@@ -228,7 +238,6 @@ const filteredProducts = computed(() => {
     const matchesGender = activeGender.value === 'ВСЕ' || p.gender === activeGender.value;
     const matchesQuality = activeQuality.value === 'ВСЕ' || p.quality === activeQuality.value;
     const matchesFactory = activeFactory.value === 'ВСЕ' || p.factory.toUpperCase().includes(activeFactory.value);
-    // Теперь фильтр Новинок использует заранее вычисленный флаг isNew
     const matchesNew = activeNew.value === 'ВСЕ' || p.isNew;
     
     return matchesSearch && matchesGender && matchesQuality && matchesFactory && matchesNew;
@@ -249,7 +258,7 @@ const stats = computed(() => {
   const qual = { 'TOP': 0, 'Q1': 0, 'Q2': 0 };
   p.forEach(i => {
     if (qual[i.quality] !== undefined) qual[i.quality]++;
-    if (i.status !== '-') avail++;
+    if (!i.isOut) avail++;
     s50 += i.p50; s500 += i.p500; s1000 += i.p1000;
   });
   return { total: p.length, availability: Math.round((avail / count) * 100), avg50: Math.round(s50 / count), avg500: Math.round(s500 / count), avg1000: Math.round(s1000 / count), qualityPerc: { 'TOP': Math.round((qual['TOP'] / count) * 100), 'Q1': Math.round((qual['Q1'] / count) * 100), 'Q2': Math.round((qual['Q2'] / count) * 100) } }
@@ -277,8 +286,17 @@ onMounted(loadData);
 .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
-/* Тэг новинки */
-.new-tag-inline { font-size: 8px; background: var(--text); color: var(--bg); padding: 1px 4px; font-weight: 900; margin-left: 5px; vertical-align: middle; }
+/* Компактный стиль для NEW */
+.badge-new-square { 
+  display: inline-block;
+  background: var(--text); 
+  color: var(--bg); 
+  font-size: 7px; 
+  font-weight: 900; 
+  padding: 1px 3px; 
+  margin-bottom: 4px;
+  line-height: 1;
+}
 
 /* LOADING */
 .loading-container { display: flex; justify-content: center; align-items: center; height: 300px; }
@@ -340,6 +358,8 @@ onMounted(loadData);
 /* THE AURA EFFECT */
 .row-visual-layer { display: contents; }
 .clickable-row { cursor: pointer; transition: 0.3s; }
+.out { opacity: 0.5; }
+
 .row-aura-overlay {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
   opacity: 0; backdrop-filter: blur(0px); background: transparent;
@@ -364,8 +384,11 @@ onMounted(loadData);
 .id-zone-square { flex-direction: column; gap: 5px; justify-content: center; border-right: 0.5px solid var(--border); padding: 8px 0; }
 .id-sq-top { font-size: 14px; font-weight: 900; color: var(--dim); }
 .lamp-sq { width: 14px; height: 3px; margin: 0 auto; border-radius: 1px; }
+
+/* ЦВЕТА ЛАМПОЧКИ */
 .lamp-sq.green { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.lamp-sq.red { background: var(--red); }
+.lamp-sq.red { background: var(--red); opacity: 0.8; }
+.lamp-sq.standard { background: var(--text); opacity: 0.5; } /* Белый (стандартный), менее яркий */
 
 /* CONTENT */
 .scent-info { width: 100%; padding-left: 10px; }
