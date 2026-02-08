@@ -7,7 +7,7 @@
           <div class="strip top"></div>
           <h1 class="logo-text">BAHUR</h1>
           <div class="strip bottom"></div>
-          <div class="logo-url">WWW.BAHUR.STORE</div>
+          <div class="logo-url">www.bahur.store</div>
           
           <button @click="isDark = !isDark" class="header-icon-btn theme-pos">
             <svg v-if="isDark" class="h-icon" viewBox="0 0 24 24">
@@ -21,10 +21,15 @@
       </header>
 
       <div v-if="errorMsg" class="error-zone">
-        <div class="error-box">
-          <h3>ОШИБКА ЗАГРУЗКИ</h3>
-          <p>{{ errorMsg }}</p>
-          <button @click="loadData" class="retry-btn">ПОВТОРИТЬ</button>
+        <div class="error-box-stylish">
+          <div class="err-icon">⚠️</div>
+          <h3 class="err-title mono">SYSTEM CONNECTION LOST</h3>
+          <p class="err-desc">{{ errorMsg }}</p>
+          <div class="err-action">
+             <button @click="loadData" class="retry-btn-stylish">
+               <span class="btn-text">ПОВТОРИТЬ ЗАГРУЗКУ</span>
+             </button>
+          </div>
         </div>
       </div>
 
@@ -43,17 +48,17 @@
             <div class="dash-grid">
               
               <div class="stat-card">
-                <label class="d-label">АРОМАТОВ</label>
+                <label class="d-label">Ароматов</label>
                 <div class="v mono">{{ stats.total }}</div>
                 <div class="mini-stat-row">
-                    <span>ЕСТЬ: {{ stats.countAvail }}</span>
+                    <span>Есть: {{ stats.countAvail }}</span>
                     <span class="dim-slash">|</span>
-                    <span>НЕТ: {{ stats.countOut }}</span>
+                    <span>Нет: {{ stats.countOut }}</span>
                 </div>
               </div>
 
               <div class="stat-card">
-                <label class="d-label">СКЛАД %</label>
+                <label class="d-label">Склад %</label>
                 <div class="stock-box-stacked">
                   <div class="v-small mono">
                     {{ stats.availability }}%
@@ -65,7 +70,7 @@
               </div>
 
               <div class="stat-card">
-                <label class="d-label">ФАБРИКИ %</label>
+                <label class="d-label">Фабрики %</label>
                 <div class="q-list">
                   <div v-for="f in ['LUZI', 'EPS', 'SELUZ']" :key="f" class="q-row-stacked">
                     <div class="q-meta">
@@ -78,7 +83,7 @@
               </div>
 
               <div class="stat-card">
-                <label class="d-label">КАЧЕСТВО %</label>
+                <label class="d-label">Качество %</label>
                 <div class="q-list">
                   <div v-for="q in ['TOP', 'Q1', 'Q2']" :key="q" class="q-row-stacked">
                     <div class="q-meta">
@@ -91,26 +96,36 @@
               </div>
 
               <div class="stat-card">
-                <label class="d-label">СРЕДНЯЯ ЦЕНА</label>
+                <label class="d-label">Средняя цена</label>
                 <div class="avg-list mono responsive-text">
-                  <div v-if="showPrices.p50" class="avg-row">50г: <span class="val">{{ stats.avg50 }}₽</span></div>
-                  <div v-if="showPrices.p500" class="avg-row">500г: <span class="val">{{ stats.avg500 }}₽</span></div>
-                  <div v-if="showPrices.p1000" class="avg-row">1кг: <span class="val">{{ stats.avg1000 }}₽</span></div>
+                  <div v-if="showPrices.p50" class="avg-row">50г:<span class="val">{{ stats.avg50 }}₽</span></div>
+                  <div v-if="showPrices.p500" class="avg-row">500г:<span class="val">{{ stats.avg500 }}₽</span></div>
+                  <div v-if="showPrices.p1000" class="avg-row">1кг:<span class="val">{{ stats.avg1000 }}₽</span></div>
                 </div>
               </div>
 
               <div class="stat-card relative-zone">
                 <div class="top-row-flex">
-                  <label class="d-label">ТОП: {{ statsMode === '6m' ? '6 МЕС' : 'ВСЕ ВРЕМЯ' }}</label>
-                  <button @click="toggleStatsMode" class="mini-arrow-btn" title="Переключить период">⇄</button>
+                  <label class="d-label">Топ: {{ statsMode === '6m' ? '6 мес' : 'Все' }}</label>
+                  
+                  <div class="top-nav-group">
+                     <button @click="toggleStatsMode" class="mini-arrow-btn mode-switch" title="Переключить период">⇄</button>
+                     <div class="scroll-arrows">
+                       <button @click="scrollTopList(-1)" :class="['mini-arrow-btn', {disabled: topListOffset === 0}]">↑</button>
+                       <button @click="scrollTopList(1)" :class="['mini-arrow-btn', {disabled: topListOffset + 3 >= stats.topListFull.length}]">↓</button>
+                     </div>
+                  </div>
                 </div>
                 
                 <div class="top-list">
-                   <div v-for="(item, idx) in stats.topList" :key="idx" class="top-row">
-                      <span class="top-name rus-font">{{ item.name }}</span>
+                   <div v-for="(item, idx) in visibleTopList" :key="idx" class="top-row">
+                      <div class="top-name-box">
+                         <span class="top-num mono">{{ topListOffset + idx + 1 }}.</span>
+                         <span class="top-name rus-font">{{ item.name }}</span>
+                      </div>
                       <span class="top-val mono">{{ statsMode === '6m' ? item.sales6m : item.salesAll }}%</span>
                    </div>
-                   <div v-if="stats.topList.length === 0" class="op-5 mono" style="font-size: 10px;">НЕТ ДАННЫХ</div>
+                   <div v-if="visibleTopList.length === 0" class="op-5 mono" style="font-size: 10px;">НЕТ ДАННЫХ</div>
                 </div>
               </div>
 
@@ -213,25 +228,25 @@
                    <transition name="pop">
                     <div v-if="showFilters" class="bahur-popup-menu filter-mode">
                       <div class="popup-section">
-                        <span class="popup-label rus-font">ПОЛ</span>
+                        <span class="popup-label rus-font">Пол</span>
                         <div class="segmented-control">
                           <button v-for="g in genderOptions" :key="g.val" @click="activeGender = g.val" :class="['segment-btn', { active: activeGender === g.val }]"><span class="rus-font">{{ g.label }}</span></button>
                         </div>
                       </div>
                       <div class="popup-section">
-                        <span class="popup-label rus-font">ФАБРИКА</span>
+                        <span class="popup-label rus-font">Фабрика</span>
                         <div class="segmented-control">
                           <button v-for="f in factoryOptions" :key="f.val" @click="activeFactory = f.val" :class="['segment-btn', { active: activeFactory === f.val }]"><span class="eng-font">{{ f.label }}</span></button>
                         </div>
                       </div>
                       <div class="popup-section">
-                        <span class="popup-label rus-font">КАЧЕСТВО</span>
+                        <span class="popup-label rus-font">Качество</span>
                         <div class="segmented-control">
                           <button v-for="q in qualityOptions" :key="q.val" @click="activeQuality = q.val" :class="['segment-btn', { active: activeQuality === q.val }]"><span class="eng-font">{{ q.label }}</span></button>
                         </div>
                       </div>
                       <div class="popup-section">
-                        <span class="popup-label rus-font">ЦЕНА</span>
+                        <span class="popup-label rus-font">Цена</span>
                         <div class="segmented-control">
                           <button v-for="s in sortOptions" :key="s.val" @click="sortBy = s.val" :class="['segment-btn', { active: sortBy === s.val }]">
                              <span v-if="s.val === 'id'" class="rus-font">ID</span>
@@ -240,7 +255,7 @@
                         </div>
                       </div>
                       <div class="popup-section">
-                        <span class="popup-label rus-font">СТОЛБЦЫ</span>
+                        <span class="popup-label rus-font">Столбцы</span>
                         <div class="segmented-control">
                           <button v-for="(val, key) in priceLabels" :key="key" @click="togglePrice(key)" :class="['segment-btn', { active: showPrices[key] }]"><span class="rus-font">{{ val }}</span></button>
                         </div>
@@ -257,16 +272,16 @@
             <div class="grid-layout-def head no-click">
               <div class="cell id head-txt center">№</div>
               <div class="cell name name-header">
-                <span class="head-txt">АРОМАТЫ</span>
+                <span class="head-txt">Ароматы</span>
               </div>
-              <div class="cell desk-only head-txt center">ПОЛ</div>
-              <div class="cell desk-only head-txt center">ФАБРИКА</div>
-              <div class="cell desk-only head-txt center">КАЧЕСТВО</div>
+              <div class="cell desk-only head-txt center">Пол</div>
+              <div class="cell desk-only head-txt center">Фабрика</div>
+              <div class="cell desk-only head-txt center">Качество</div>
               
               <div class="price-section head-p" :style="priceSubGridStyle">
-                <div v-if="showPrices.p50" class="p-col line center">50Г</div>
-                <div v-if="showPrices.p500" class="p-col line center">500Г</div>
-                <div v-if="showPrices.p1000" class="p-col last center">1КГ</div>
+                <div v-if="showPrices.p50" class="p-col line center">50г</div>
+                <div v-if="showPrices.p500" class="p-col line center">500г</div>
+                <div v-if="showPrices.p1000" class="p-col last center">1кг</div>
               </div>
             </div>
           </div>
@@ -335,9 +350,29 @@ const errorMsg = ref(null);
 const products = ref([]); 
 const showDash = ref(true);
 
-// --- State for Statistics Mode ---
+// --- State for Statistics Mode & Scroll ---
 const statsMode = ref('6m'); // '6m' or 'all'
-const toggleStatsMode = () => statsMode.value = statsMode.value === '6m' ? 'all' : '6m';
+const topListOffset = ref(0);
+const topListPageSize = 3;
+
+const toggleStatsMode = () => {
+  statsMode.value = statsMode.value === '6m' ? 'all' : '6m';
+  topListOffset.value = 0; // Reset scroll on mode switch
+}
+
+const scrollTopList = (dir) => {
+  const nextOffset = topListOffset.value + (dir * topListPageSize);
+  const max = stats.value.topListFull.length;
+  if (dir > 0 && nextOffset < max) {
+     topListOffset.value = nextOffset;
+  } else if (dir < 0 && nextOffset >= 0) {
+     topListOffset.value = nextOffset;
+  }
+}
+
+const visibleTopList = computed(() => {
+  return stats.value.topListFull.slice(topListOffset.value, topListOffset.value + topListPageSize);
+});
 
 const selectedBrands = ref([]); 
 const tempBrandInput = ref('');
@@ -360,12 +395,14 @@ const autoHighlightId = ref(null);
 let highlightInterval = null;
 
 const showPrices = ref({ p50: true, p500: true, p1000: true });
-const priceLabels = { p50: '50Г', p500: '500Г', p1000: '1КГ' };
+// Обновленные лейблы (Title Case)
+const priceLabels = { p50: '50г', p500: '500г', p1000: '1кг' };
 const activePriceCount = computed(() => Object.values(showPrices.value).filter(Boolean).length);
 
-const genderOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'МУЖ', val: 'm' }, { label: 'ЖЕН', val: 'w' }, { label: 'УНИ', val: 'y' }];
-const factoryOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'LUZI', val: 'LUZI' }, { label: 'EPS', val: 'EPS' }, { label: 'SELUZ', val: 'SELUZ' }];
-const qualityOptions = [{ label: 'ВСЕ', val: 'ВСЕ' }, { label: 'TOP', val: 'TOP' }, { label: 'Q1', val: 'Q1' }, { label: 'Q2', val: 'Q2' }];
+// Обновленные опции (Title Case)
+const genderOptions = [{ label: 'Все', val: 'ВСЕ' }, { label: 'Муж', val: 'm' }, { label: 'Жен', val: 'w' }, { label: 'Уни', val: 'y' }];
+const factoryOptions = [{ label: 'Все', val: 'ВСЕ' }, { label: 'LUZI', val: 'LUZI' }, { label: 'EPS', val: 'EPS' }, { label: 'SELUZ', val: 'SELUZ' }];
+const qualityOptions = [{ label: 'Все', val: 'ВСЕ' }, { label: 'TOP', val: 'TOP' }, { label: 'Q1', val: 'Q1' }, { label: 'Q2', val: 'Q2' }];
 const sortOptions = [{ label: 'ID', val: 'id' }, { label: 'asc', val: 'asc' }, { label: 'desc', val: 'desc' }];
 
 const toggleNew = () => isNewOnly.value = !isNewOnly.value;
@@ -473,7 +510,7 @@ const loadData = async () => {
     products.value = parseCSV(txt);
     if (products.value.length === 0) throw new Error('Данные пусты или ошибка формата');
     startAutoHighlight();
-  } catch (e) { console.error(e); errorMsg.value = "Не удалось загрузить прайс. Проверьте интернет."; } finally { setTimeout(() => loading.value = false, 500); }
+  } catch (e) { console.error(e); errorMsg.value = "Не удалось подключиться к базе данных. Проверьте соединение."; } finally { setTimeout(() => loading.value = false, 500); }
 }
 
 const startAutoHighlight = () => {
@@ -547,13 +584,12 @@ const stats = computed(() => {
     else if (f.includes('SELUZ')) factories['SELUZ']++;
   });
   
-  // Sorting for Top List (based on current filtered products)
-  // Sort descending by either sales6m or salesAll based on statsMode
-  const topList = [...p].sort((a,b) => {
-     const valA = statsMode.value === '6m' ? a.sales6m : a.salesAll;
-     const valB = statsMode.value === '6m' ? b.sales6m : b.salesAll;
-     return valB - valA;
-  }).slice(0, 3); // Take Top 3
+  // Full Sorted List for Scrolling
+  const topListFull = [...p].sort((a,b) => {
+      const valA = statsMode.value === '6m' ? a.sales6m : a.salesAll;
+      const valB = statsMode.value === '6m' ? b.sales6m : b.salesAll;
+      return valB - valA;
+  }); // Remove slice limit here
 
   const availPerc = Math.round((avail / count) * 100);
   return { 
@@ -566,11 +602,11 @@ const stats = computed(() => {
       avg1000: Math.round(s1000 / count), 
       qualityPerc: { 'TOP': Math.round((qual['TOP'] / count) * 100), 'Q1': Math.round((qual['Q1'] / count) * 100), 'Q2': Math.round((qual['Q2'] / count) * 100) },
       factoryPerc: { 'LUZI': Math.round((factories['LUZI'] / count) * 100), 'EPS': Math.round((factories['EPS'] / count) * 100), 'SELUZ': Math.round((factories['SELUZ'] / count) * 100) },
-      topList: topList
+      topListFull: topListFull
   }
 })
 
-const getSex = (g) => ({ m: 'МУЖ', w: 'ЖЕН', y: 'УНИ' }[g] || '—');
+const getSex = (g) => ({ m: 'Муж', w: 'Жен', y: 'Уни' }[g] || '—');
 const open = (u) => window.open(u.startsWith('http') ? u : `https://${u}`, '_blank');
 onMounted(loadData);
 onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
@@ -590,7 +626,6 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .rus-font { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
 .mono { font-family: 'JetBrains Mono', monospace; }
 
-/* УБРАЛ TRANSITION ДЛЯ РЕЗКОЙ СМЕНЫ ТЕМЫ */
 .bahur-terminal {
   --bg: #000; --text: #fff; --border: rgba(255,255,255,0.08); --dim: #555; --green: #00ff88; --red: #ff3b30;
   --panel-bg: rgba(0,0,0,0.95); --aura-bg: rgba(0,0,0,0.4); --aura-text: #fff;
@@ -623,10 +658,32 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 
 .container { max-width: 1400px; margin: 0 auto; padding: 15px; }
 
-/* ERROR */
+/* ERROR NEW STYLE */
 .error-zone { display: flex; justify-content: center; align-items: center; height: 50vh; }
-.error-box { text-align: center; border: 1px solid var(--red); padding: 30px; border-radius: 8px; background: rgba(255,59,48,0.1); }
-.retry-btn { margin-top: 15px; padding: 10px 20px; background: var(--text); color: var(--bg); border: none; font-weight: bold; cursor: pointer; }
+.error-box-stylish { 
+  text-align: center; 
+  border: 1px solid var(--red); 
+  padding: 40px 60px; 
+  border-radius: 4px; 
+  background: rgba(255,59,48,0.05); 
+  box-shadow: 0 0 20px rgba(255,59,48,0.1);
+  max-width: 400px;
+}
+.err-icon { font-size: 30px; margin-bottom: 15px; }
+.err-title { font-size: 14px; color: var(--red); margin-bottom: 10px; letter-spacing: 1px; }
+.err-desc { font-size: 12px; color: var(--dim); margin-bottom: 25px; }
+.retry-btn-stylish { 
+  background: transparent; 
+  border: 1px solid var(--text); 
+  color: var(--text); 
+  padding: 12px 24px; 
+  font-family: 'JetBrains Mono', monospace; 
+  font-size: 11px; 
+  cursor: pointer; 
+  transition: 0.3s;
+  text-transform: uppercase;
+}
+.retry-btn-stylish:hover { background: var(--text); color: var(--bg); box-shadow: 0 0 10px var(--text); }
 
 /* STICKY NAV */
 .sticky-nav-group {
@@ -751,8 +808,10 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .logo-strip-box { display: inline-block; position: relative; padding: 12px 60px; }
 .strip { height: 0.5px; background: var(--text); width: 100%; position: absolute; left: 0; opacity: 0.3; }
 .strip.top { top: 0; } .strip.bottom { bottom: 0; }
-.logo-text { font-size: 36px; font-weight: 900; margin: 0; letter-spacing: 0.25em; font-family: 'Kollektif', sans-serif; }
-.logo-url { font-size: 9px; color: var(--dim); font-weight: 700; letter-spacing: 2px; margin-top: 5px; font-family: 'Kollektif', sans-serif;}
+/* LOGO THIN WEIGHT */
+.logo-text { font-size: 36px; font-weight: 300; margin: 0; letter-spacing: 0.25em; font-family: 'Kollektif', sans-serif; }
+/* URL LOWERCASE */
+.logo-url { font-size: 9px; color: var(--dim); font-weight: 700; letter-spacing: 2px; margin-top: 5px; font-family: 'Kollektif', sans-serif; text-transform: lowercase; }
 
 /* Theme & Stats Button */
 .header-icon-btn {
@@ -788,14 +847,15 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .stat-card .v { font-size: 24px; font-weight: 700; }
 .responsive-text { font-size: clamp(10px, 1.1vw, 14px); }
 .avg-row { margin-bottom: 4px; color: var(--dim); }
-.avg-row .val { color: var(--text); font-weight: 700; margin-left: 4px; }
+/* Reduced margin-left for closer spacing */
+.avg-row .val { color: var(--text); font-weight: 700; margin-left: 2px; }
 .q-row-stacked, .stock-box-stacked { margin-bottom: 10px; }
 .q-meta { display: flex; justify-content: space-between; font-size: 9px; font-weight: 600; margin-bottom: 5px; }
 .op-5 { opacity: 0.5; }
 .q-track-neon { height: 2px; background: var(--border); width: 100%; overflow: hidden; }
 .q-track-neon.dual-mode { display: flex; }
 .q-fill-neon { height: 100%; background: var(--text); box-shadow: 0 0 5px var(--text); transition: 1s ease-out; }
-.white-part { background: #fff; box-shadow: 0 0 5px #fff; } /* Чисто белая полоска */
+.white-part { background: #fff; box-shadow: 0 0 5px #fff; } 
 .green-part { background: #00ff41; box-shadow: 0 0 5px #00ff41; }
 .red-part { background: #ff2a2a; box-shadow: 0 0 5px #ff2a2a; }
 
@@ -803,12 +863,23 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .mini-stat-row { font-size: 9px; font-weight: 700; margin-top: 5px; }
 .dim-slash { margin: 0 5px; opacity: 0.3; }
 
-/* Стили для TOP Card */
-.top-row-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.mini-arrow-btn { background: none; border: 1px solid var(--border); color: var(--text); cursor: pointer; border-radius: 4px; font-size: 10px; padding: 2px 6px; }
-.top-list { display: flex; flex-direction: column; gap: 5px; }
+/* Стили для TOP Card Updates */
+.top-row-flex { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.top-nav-group { display: flex; align-items: center; gap: 6px; }
+.scroll-arrows { display: flex; gap: 2px; }
+
+.mini-arrow-btn { 
+  background: none; border: 1px solid var(--border); color: var(--text); 
+  cursor: pointer; border-radius: 4px; font-size: 10px; padding: 2px 5px; min-width: 20px; text-align: center;
+}
+.mini-arrow-btn:hover { background: rgba(255,255,255,0.1); }
+.mini-arrow-btn.disabled { opacity: 0.2; cursor: default; }
+
+.top-list { display: flex; flex-direction: column; gap: 8px; }
 .top-row { display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
-.top-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 65%; font-weight: 500; }
+.top-name-box { display: flex; align-items: center; overflow: hidden; max-width: 75%; }
+.top-num { color: var(--dim); margin-right: 6px; font-size: 9px; min-width: 15px; }
+.top-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 500; }
 .top-val { font-weight: 700; }
 
 .grid-table { display: flex; flex-direction: column; width: 100%; min-width: 1000px; border: 0.5px solid var(--border); border-top: none; }
@@ -829,6 +900,7 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 }
 
 .cell { height: 100%; display: flex; align-items: center; padding: 15px; border-right: 0.5px solid var(--border); box-sizing: border-box; overflow: hidden; }
+/* Title Case Headers logic handled in template text, styling kept uppercase for aesthetics if needed, but text is now Title Case in HTML */
 .head-txt { font-size: 8px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: 1.5px; font-family: 'Helvetica Neue', sans-serif;}
 .center { justify-content: center; text-align: center; }
 
@@ -895,7 +967,7 @@ onUnmounted(() => { if (highlightInterval) clearInterval(highlightInterval); });
 .price-section { display: grid; height: 100%; width: 100%; align-items: center; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 .p-col { text-align: center; font-size: 15px; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; white-space: nowrap; box-sizing: border-box; }
 .p-col.line { border-right: 0.5px solid var(--border); }
-.head-p .p-col { font-size: 8px; font-weight: 700; color: var(--dim); letter-spacing: 1.5px; }
+.head-p .p-col { font-size: 8px; font-weight: 700; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; }
 
 @media (max-width: 900px) {
   /* На мобильном - 3 колонки (по 2 карточки в ряд) */
